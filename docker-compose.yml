@@ -1,0 +1,107 @@
+# Full local/production-like stack. Configure via compose.env (see compose.env.example):
+#   docker compose --env-file compose.env up -d --build
+# Only NV_* variables are interpolated, so unrelated keys in a root .env are never picked up.
+name: navedhana
+
+x-backend-env: &backend-env
+  NODE_ENV: production
+  DATABASE_URL: postgresql://navedhana:${NV_DB_PASSWORD:?set NV_DB_PASSWORD}@postgres:5432/navedhana
+  REDIS_URL: redis://redis:6379
+  JWT_ACCESS_SECRET: ${NV_JWT_SECRET:?set NV_JWT_SECRET}
+  CORS_ORIGINS: ${NV_WEB_URL:-http://localhost:3000}
+  PUBLIC_WEB_URL: ${NV_WEB_URL:-http://localhost:3000}
+  # The API creates the bucket on first boot, so no init container is needed.
+  S3_ENDPOINT: http://storage:9000
+  S3_PUBLIC_ENDPOINT: ${NV_S3_PUBLIC_URL:-http://localhost:9000}
+  S3_BUCKET: navedhana
+  S3_ACCESS_KEY: ${NV_S3_ACCESS_KEY:?set NV_S3_ACCESS_KEY}
+  S3_SECRET_KEY: ${NV_S3_SECRET_KEY:?set NV_S3_SECRET_KEY}
+  S3_FORCE_PATH_STYLE: "true"
+  # Defaults to the bundled Mailpit inbox; point at a real SMTP server in production.
+  SMTP_URL: ${NV_SMTP_URL:-smtp://mailpit:1025}
+  MAIL_FROM: ${NV_MAIL_FROM:-Navedhana Ledger <no-reply@navedhana.local>}
+  REVALIDATE_SECRET: ${NV_REVALIDATE_SECRET:-}
+  WEB_INTERNAL_URL: http://web:3000
+  MASTER_ADMIN_EMAIL: ${NV_MASTER_ADMIN_EMAIL:-}
+  MASTER_ADMIN_PASSWORD: ${NV_MASTER_ADMIN_PASSWORD:-}
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: navedhana
+      POSTGRES_PASSWORD: ${NV_DB_PASSWORD:?set NV_DB_PASSWORD}
+      POSTGRES_DB: navedhana
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U navedhana"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: [redisdata:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+  # S3-compatible object storage (the minio/minio image is no longer published on Docker Hub).
+  storage:
+    image: rustfs/rustfs:1.0.0
+    environment:
+      RUSTFS_ACCESS_KEY: ${NV_S3_ACCESS_KEY:?set NV_S3_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${NV_S3_SECRET_KEY:?set NV_S3_SECRET_KEY}
+    ports: ["9000:9000"]
+    volumes: [storagedata:/data]
+    restart: unless-stopped
+
+  # Catches all outgoing email; inbox UI at http://localhost:8025.
+  mailpit:
+    image: axllent/mailpit:latest
+    ports: ["8025:8025"]
+    restart: unless-stopped
+
+  migrate:
+    build: ./backend
+    command: ["npx", "prisma", "migrate", "deploy"]
+    environment: *backend-env
+    depends_on: { postgres: { condition: service_healthy } }
+
+  api:
+    build: ./backend
+    environment: *backend-env
+    ports: ["4000:4000"]
+    depends_on: &backend-deps
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+      storage: { condition: service_started }
+      mailpit: { condition: service_started }
+    restart: unless-stopped
+
+  worker:
+    build: ./backend
+    command: ["node", "dist/worker.js"]
+    environment: *backend-env
+    depends_on: *backend-deps
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        API_URL: http://api:4000
+        NEXT_PUBLIC_SITE_URL: ${NV_WEB_URL:-http://localhost:3000}
+        NEXT_PUBLIC_WS_URL: ${NV_WS_URL:-}
+    environment:
+      API_URL: http://api:4000
+      REVALIDATE_SECRET: ${NV_REVALIDATE_SECRET:-}
+    ports: ["3000:3000"]
+    depends_on: [api]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata:
+  storagedata:

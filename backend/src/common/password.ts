@@ -1,0 +1,2 @@
+export const PASSWORD = /^(?=.*[A-Za-z])(?=.*\d).{8,128}$/;
+export const PASSWORD_MESSAGE = 'Password must be at least 8 characters and include a letter and a number';

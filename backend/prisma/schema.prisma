@@ -1,0 +1,733 @@
+// Multi-tenant schema. Every tenant-owned model has companyId; service data also has serviceId.
+// Money: Decimal(18,2). Never Float.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RecordStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum CompanyStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+}
+
+enum InvoiceType {
+  SALES
+  TAX
+  PROFORMA
+  PURCHASE
+  CREDIT_NOTE
+  DEBIT_NOTE
+}
+
+enum InvoiceDirection {
+  RECEIVABLE
+  PAYABLE
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  RECEIVED
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+  CANCELLED
+  VOID
+}
+
+enum TaxMode {
+  INTRA_STATE
+  INTER_STATE
+  NONE
+}
+
+enum DueType {
+  FIXED
+  OPTIONAL
+  NONE
+}
+
+enum StageStatus {
+  PENDING
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  UPI
+  CARD
+  CHEQUE
+  OTHER
+}
+
+enum PaymentStatus {
+  SUCCESS
+  FAILED
+  REFUNDED
+  REVERSED
+}
+
+enum TemplateVersionStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum CustomFieldType {
+  TEXT
+  NUMBER
+  DATE
+  DROPDOWN
+  BOOLEAN
+  CURRENCY
+}
+
+enum DocumentKind {
+  LOGO
+  HEADER
+  FOOTER
+  SIGNATURE
+  INVOICE_PDF
+  RECEIPT_PDF
+  OTHER
+}
+
+// ---------- Platform ----------
+
+enum PlanInterval {
+  MONTHLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  EXPIRED
+}
+
+model Plan {
+  id           BigInt       @id @default(autoincrement())
+  code         String       @unique
+  name         String
+  description  String?
+  price        Decimal      @default(0) @db.Decimal(18, 2)
+  currency     String       @default("INR")
+  interval     PlanInterval @default(MONTHLY)
+  trialDays    Int          @default(14)
+  /// Marketing bullet points shown on the pricing page.
+  features     String[]
+  /// Numeric limits (null = unlimited) and feature flags, validated by plan-limits.ts.
+  limits       Json         @default("{}")
+  displayOrder Int          @default(0)
+  highlighted  Boolean      @default(false)
+  isActive     Boolean      @default(true)
+  companies    Company[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@map("plans")
+}
+
+model User {
+  id                 BigInt               @id @default(autoincrement())
+  email              String               @unique
+  passwordHash       String
+  fullName           String
+  phone              String?
+  isMasterAdmin      Boolean              @default(false)
+  status             RecordStatus         @default(ACTIVE)
+  emailNotifications Boolean              @default(true)
+  lastLoginAt        DateTime?
+  memberships        Membership[]
+  refreshTokens      RefreshToken[]
+  resetTokens        PasswordResetToken[]
+  notifications      Notification[]
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  @@map("users")
+}
+
+model PasswordResetToken {
+  id        BigInt    @id @default(autoincrement())
+  userId    BigInt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model RefreshToken {
+  id        BigInt    @id @default(autoincrement())
+  userId    BigInt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  family    String
+  expiresAt DateTime
+  revokedAt DateTime?
+  userAgent String?
+  ip        String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([family])
+  @@map("refresh_tokens")
+}
+
+// ---------- Tenant ----------
+
+model Company {
+  id                 BigInt             @id @default(autoincrement())
+  slug               String             @unique
+  legalName          String
+  displayName        String
+  registrationNumber String?
+  gstin              String?
+  pan                String?
+  address            String?
+  city               String?
+  state              String?
+  country            String             @default("India")
+  pincode            String?
+  email              String?
+  phone              String?
+  website            String?
+  status             CompanyStatus      @default(PENDING)
+  planId             BigInt?
+  plan               Plan?              @relation(fields: [planId], references: [id])
+  subscriptionStatus SubscriptionStatus @default(ACTIVE)
+  trialEndsAt        DateTime?
+  timezone           String             @default("Asia/Kolkata")
+  settings           Json               @default("{}")
+  services           Service[]
+  memberships        Membership[]
+  roles              Role[]
+  departments        Department[]
+  employees          Employee[]
+  customers          Customer[]
+  vendors            Vendor[]
+  products           Product[]
+  invoices           Invoice[]
+  payments           Payment[]
+  documents          Document[]
+  invitations        Invitation[]
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([status])
+  @@map("companies")
+}
+
+model Service {
+  id                BigInt            @id @default(autoincrement())
+  companyId         BigInt
+  company           Company           @relation(fields: [companyId], references: [id])
+  slug              String
+  name              String
+  displayName       String
+  /// Optional line under the brand name on invoices and the public page, e.g. "A unit of Acme Pvt Ltd".
+  tagline           String?
+  description       String?
+  logoKey           String?
+  headerLogoKey     String?
+  footerLogoKey     String?
+  signatureKey      String?
+  address           String?
+  email             String?
+  phone             String?
+  website           String?
+  gstin             String?
+  pan               String?
+  state             String?
+  bankDetails       Json              @default("{}")
+  socialLinks       Json              @default("{}")
+  /// Short code used in document numbers ({CODE}), unique per company.
+  code              String
+  /// Per-series numbering config, validated by numbering.ts.
+  numbering         Json              @default("{}")
+  sequences         InvoiceSequence[]
+  defaultTemplateId BigInt?
+  terms             String?
+  isPublic          Boolean           @default(false)
+  status            RecordStatus      @default(ACTIVE)
+  invoices          Invoice[]
+  templates         InvoiceTemplate[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@unique([companyId, slug])
+  @@unique([companyId, code])
+  @@index([companyId, status])
+  @@map("services")
+}
+
+/// Next number per service, document series and period ("" when the series never resets).
+model InvoiceSequence {
+  serviceId BigInt
+  service   Service @relation(fields: [serviceId], references: [id])
+  series    String
+  period    String  @default("")
+  next      Int
+
+  @@id([serviceId, series, period])
+  @@map("invoice_sequences")
+}
+
+model Department {
+  id          BigInt     @id @default(autoincrement())
+  companyId   BigInt
+  company     Company    @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  serviceId   BigInt?
+  name        String
+  description String?
+  employees   Employee[]
+  createdAt   DateTime   @default(now())
+
+  @@unique([companyId, name])
+  @@map("departments")
+}
+
+model Membership {
+  id                 BigInt              @id @default(autoincrement())
+  companyId          BigInt
+  company            Company             @relation(fields: [companyId], references: [id])
+  userId             BigInt
+  user               User                @relation(fields: [userId], references: [id])
+  status             RecordStatus        @default(ACTIVE)
+  roles              MembershipRole[]
+  serviceAssignments ServiceAssignment[]
+  createdAt          DateTime            @default(now())
+
+  @@unique([companyId, userId])
+  @@map("memberships")
+}
+
+model Role {
+  id          BigInt           @id @default(autoincrement())
+  companyId   BigInt?
+  company     Company?         @relation(fields: [companyId], references: [id])
+  key         String
+  name        String
+  description String?
+  isSystem    Boolean          @default(false)
+  allServices Boolean          @default(false)
+  permissions String[]
+  members     MembershipRole[]
+  createdAt   DateTime         @default(now())
+
+  @@unique([companyId, key])
+  @@map("roles")
+}
+
+model MembershipRole {
+  id           BigInt     @id @default(autoincrement())
+  membershipId BigInt
+  membership   Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  roleId       BigInt
+  role         Role       @relation(fields: [roleId], references: [id])
+  serviceId    BigInt?
+
+  @@unique([membershipId, roleId, serviceId])
+  @@map("membership_roles")
+}
+
+model ServiceAssignment {
+  membershipId BigInt
+  membership   Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  serviceId    BigInt
+  companyId    BigInt
+
+  @@id([membershipId, serviceId])
+  @@index([companyId])
+  @@map("service_assignments")
+}
+
+model Invitation {
+  id           BigInt    @id @default(autoincrement())
+  companyId    BigInt
+  company      Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  email        String
+  fullName     String
+  phone        String?
+  roleIds      BigInt[]
+  serviceIds   BigInt[]
+  departmentId BigInt?
+  employeeId   BigInt?
+  tokenHash    String    @unique
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  revokedAt    DateTime?
+  invitedById  BigInt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([companyId, email])
+  @@map("invitations")
+}
+
+model Employee {
+  id           BigInt       @id @default(autoincrement())
+  companyId    BigInt
+  company      Company      @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  serviceId    BigInt?
+  departmentId BigInt?
+  department   Department?  @relation(fields: [departmentId], references: [id])
+  userId       BigInt?
+  employeeCode String?
+  fullName     String
+  email        String?
+  phone        String?
+  designation  String?
+  joiningDate  DateTime?    @db.Date
+  status       RecordStatus @default(ACTIVE)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([companyId, status])
+  @@index([companyId, departmentId])
+  @@map("employees")
+}
+
+// ---------- Parties & catalog ----------
+
+model Customer {
+  id              BigInt       @id @default(autoincrement())
+  companyId       BigInt
+  company         Company      @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  name            String
+  email           String?
+  phone           String?
+  gstin           String?
+  pan             String?
+  state           String?
+  billingAddress  String?
+  shippingAddress String?
+  notes           String?
+  status          RecordStatus @default(ACTIVE)
+  invoices        Invoice[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([companyId, createdAt])
+  @@index([companyId, name])
+  @@map("customers")
+}
+
+model Vendor {
+  id               BigInt       @id @default(autoincrement())
+  companyId        BigInt
+  company          Company      @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  name             String
+  email            String?
+  phone            String?
+  address          String?
+  gstin            String?
+  pan              String?
+  state            String?
+  bankDetails      Json         @default("{}")
+  paymentTermsDays Int          @default(30)
+  notes            String?
+  status           RecordStatus @default(ACTIVE)
+  invoices         Invoice[]
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([companyId, createdAt])
+  @@index([companyId, name])
+  @@map("vendors")
+}
+
+model Product {
+  id          BigInt   @id @default(autoincrement())
+  companyId   BigInt
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  serviceId   BigInt?
+  name        String
+  sku         String?
+  hsnSac      String?
+  unit        String   @default("nos")
+  unitPrice   Decimal  @default(0) @db.Decimal(18, 2)
+  taxRate     Decimal  @default(0) @db.Decimal(5, 2)
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([companyId, serviceId])
+  @@map("products")
+}
+
+// ---------- Templates ----------
+
+model InvoiceTemplate {
+  id        BigInt                   @id @default(autoincrement())
+  companyId BigInt
+  serviceId BigInt
+  service   Service                  @relation(fields: [serviceId], references: [id])
+  name      String
+  versions  InvoiceTemplateVersion[]
+  /// Set instead of deleting when invoices reference a version, so their PDFs still render.
+  archivedAt DateTime?
+  createdAt DateTime                 @default(now())
+  updatedAt DateTime                 @updatedAt
+
+  @@index([companyId, serviceId])
+  @@map("invoice_templates")
+}
+
+model InvoiceTemplateVersion {
+  id          BigInt                @id @default(autoincrement())
+  templateId  BigInt
+  template    InvoiceTemplate       @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  companyId   BigInt
+  version     Int
+  config      Json
+  status      TemplateVersionStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdById BigInt?
+  invoices    Invoice[]
+  createdAt   DateTime              @default(now())
+
+  @@unique([templateId, version])
+  @@map("invoice_template_versions")
+}
+
+model CustomFieldDefinition {
+  id        BigInt          @id @default(autoincrement())
+  companyId BigInt
+  serviceId BigInt
+  key       String
+  label     String
+  type      CustomFieldType
+  options   String[]
+  required  Boolean         @default(false)
+  createdAt DateTime        @default(now())
+
+  @@unique([serviceId, key])
+  @@index([companyId])
+  @@map("custom_field_definitions")
+}
+
+// ---------- Invoicing ----------
+
+model Invoice {
+  id                 BigInt                  @id @default(autoincrement())
+  companyId          BigInt
+  company            Company                 @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  serviceId          BigInt
+  service            Service                 @relation(fields: [serviceId], references: [id])
+  invoiceType        InvoiceType
+  direction          InvoiceDirection
+  status             InvoiceStatus           @default(DRAFT)
+  invoiceNumber      String?
+  externalNumber     String?
+  customerId         BigInt?
+  customer           Customer?               @relation(fields: [customerId], references: [id])
+  vendorId           BigInt?
+  vendor             Vendor?                 @relation(fields: [vendorId], references: [id])
+  referenceInvoiceId BigInt?
+  referenceInvoice   Invoice?                @relation("InvoiceReference", fields: [referenceInvoiceId], references: [id])
+  adjustments        Invoice[]               @relation("InvoiceReference")
+  issueDate          DateTime?               @db.Date
+  dueDate            DateTime?               @db.Date
+  currency           String                  @default("INR")
+  taxMode            TaxMode                 @default(INTRA_STATE)
+  subtotal           Decimal                 @default(0) @db.Decimal(18, 2)
+  discountTotal      Decimal                 @default(0) @db.Decimal(18, 2)
+  taxTotal           Decimal                 @default(0) @db.Decimal(18, 2)
+  total              Decimal                 @default(0) @db.Decimal(18, 2)
+  paidAmount         Decimal                 @default(0) @db.Decimal(18, 2)
+  balanceAmount      Decimal                 @default(0) @db.Decimal(18, 2)
+  notes              String?
+  terms              String?
+  customFieldValues  Json                    @default("{}")
+  templateVersionId  BigInt?
+  templateVersion    InvoiceTemplateVersion? @relation(fields: [templateVersionId], references: [id])
+  brandingSnapshot   Json?
+  /// Customer/vendor details frozen at issue.
+  partySnapshot      Json?
+  pdfDocumentId      BigInt?
+  pdfGeneratedAt     DateTime?
+  issuedAt           DateTime?
+  issuedById         BigInt?
+  cancelledAt        DateTime?
+  createdById        BigInt
+  items              InvoiceItem[]
+  schedule           PaymentScheduleItem[]
+  payments           Payment[]
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+  @@unique([companyId, invoiceNumber])
+  @@index([companyId, createdAt])
+  @@index([companyId, status])
+  @@index([companyId, serviceId])
+  @@index([companyId, dueDate])
+  @@index([serviceId, status])
+  @@index([customerId])
+  @@index([vendorId])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          BigInt  @id @default(autoincrement())
+  invoiceId   BigInt
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  companyId   BigInt
+  productId   BigInt?
+  position    Int
+  description String
+  hsnSac      String?
+  quantity    Decimal @db.Decimal(18, 4)
+  unitPrice   Decimal @db.Decimal(18, 2)
+  discount    Decimal @default(0) @db.Decimal(18, 2)
+  taxRate     Decimal @default(0) @db.Decimal(5, 2)
+  taxAmount   Decimal @default(0) @db.Decimal(18, 2)
+  cgst        Decimal @default(0) @db.Decimal(18, 2)
+  sgst        Decimal @default(0) @db.Decimal(18, 2)
+  igst        Decimal @default(0) @db.Decimal(18, 2)
+  lineTotal   Decimal @db.Decimal(18, 2)
+
+  @@index([invoiceId])
+  @@map("invoice_items")
+}
+
+model PaymentScheduleItem {
+  id          BigInt              @id @default(autoincrement())
+  invoiceId   BigInt
+  invoice     Invoice             @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  companyId   BigInt
+  stageNumber Int
+  description String?
+  amount      Decimal             @db.Decimal(18, 2)
+  dueType     DueType             @default(FIXED)
+  dueDate     DateTime?           @db.Date
+  paidAmount  Decimal             @default(0) @db.Decimal(18, 2)
+  status      StageStatus         @default(PENDING)
+  allocations PaymentAllocation[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@unique([invoiceId, stageNumber])
+  @@index([companyId, dueDate])
+  @@map("payment_schedule_items")
+}
+
+model Payment {
+  id            BigInt              @id @default(autoincrement())
+  companyId     BigInt
+  company       Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  serviceId     BigInt
+  invoiceId     BigInt
+  invoice       Invoice             @relation(fields: [invoiceId], references: [id])
+  amount        Decimal             @db.Decimal(18, 2)
+  method        PaymentMethod
+  /// Receipt (receivables) or voucher (payables) number, assigned for successful payments.
+  receiptNumber String?
+  reference     String?
+  paidAt        DateTime
+  status        PaymentStatus       @default(SUCCESS)
+  notes         String?
+  reversalOfId  BigInt?
+  createdById   BigInt
+  allocations   PaymentAllocation[]
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@unique([companyId, receiptNumber])
+  @@index([companyId, paidAt])
+  @@index([serviceId])
+  @@index([invoiceId])
+  @@map("payments")
+}
+
+model PaymentAllocation {
+  id             BigInt              @id @default(autoincrement())
+  companyId      BigInt
+  paymentId      BigInt
+  payment        Payment             @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  scheduleItemId BigInt
+  scheduleItem   PaymentScheduleItem @relation(fields: [scheduleItemId], references: [id], onDelete: Cascade)
+  amount         Decimal             @db.Decimal(18, 2)
+
+  @@index([paymentId])
+  @@map("payment_allocations")
+}
+
+// ---------- Files & audit ----------
+
+model Document {
+  id          BigInt       @id @default(autoincrement())
+  companyId   BigInt
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  serviceId   BigInt?
+  kind        DocumentKind
+  storageKey  String       @unique
+  fileName    String
+  mimeType    String
+  size        Int
+  entityType  String?
+  entityId    BigInt?
+  createdById BigInt?
+  createdAt   DateTime     @default(now())
+
+  @@index([companyId, kind])
+  @@index([entityType, entityId])
+  @@map("documents")
+}
+
+model Notification {
+  id        BigInt    @id @default(autoincrement())
+  userId    BigInt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyId BigInt?
+  serviceId BigInt?
+  type      String
+  title     String
+  body      String?
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, companyId, createdAt])
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id            BigInt   @id @default(autoincrement())
+  actorUserId   BigInt?
+  companyId     BigInt?
+  serviceId     BigInt?
+  action        String
+  entityType    String
+  entityId      BigInt?
+  previousValue Json?
+  newValue      Json?
+  ip            String?
+  userAgent     String?
+  createdAt     DateTime @default(now())
+
+  @@index([companyId, createdAt])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([actorUserId])
+  @@map("audit_logs")
+}
