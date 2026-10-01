@@ -2,10 +2,10 @@ import { Clock, LifeBuoy, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { CONTACT_EMAIL, pageMeta, SUPPORT_EMAIL } from '@/lib/seo';
 
-export const metadata = pageMeta('Contact', 'Talk to the Navedhana Ledger team about multi-brand invoicing for your company.', '/contact');
+export const metadata = pageMeta('Contact', 'Talk to the nbills team about multi-brand invoicing for your company.', '/contact');
 
 const cards = [
-  { icon: Mail, title: 'Sales & demos', text: 'Plans, onboarding and multi-company setups.', href: `mailto:${CONTACT_EMAIL}?subject=Navedhana%20Ledger%20enquiry`, cta: CONTACT_EMAIL },
+  { icon: Mail, title: 'Sales & demos', text: 'Plans, onboarding and multi-company setups.', href: `mailto:${CONTACT_EMAIL}?subject=nbills%20enquiry`, cta: CONTACT_EMAIL },
   { icon: LifeBuoy, title: 'Customer support', text: 'Help with your workspace, invoices or billing.', href: `mailto:${SUPPORT_EMAIL}?subject=Support%20request`, cta: SUPPORT_EMAIL },
   { icon: Clock, title: 'Hours', text: 'Monday to Friday, 10:00–18:00 IST. We usually reply within one business day.' },
 ];

@@ -114,7 +114,7 @@ function PreferencesCard({ me }: { me: Me }) {
           <div className="grid max-w-sm grid-cols-2 gap-2" role="radiogroup" aria-label="Theme">
             {([['light', 'Light', Sun], ['dark', 'Dark', Moon]] as const).map(([value, label, Icon]) => (
               <button key={value} type="button" role="radio" aria-checked={theme === value} onClick={() => setTheme(value)}
-                className={cn('flex items-center gap-2 rounded-xl border p-3 text-sm font-medium transition', theme === value ? 'border-primary bg-primary-soft text-primary' : 'hover:border-border-strong')}>
+                className={cn('flex items-center gap-2 rounded-xl border border-border-input bg-surface p-3 text-sm font-medium transition', theme === value ? 'border-primary bg-primary-soft text-primary' : 'hover:border-border-strong')}>
                 <Icon className="size-4" aria-hidden />{label}
               </button>
             ))}

@@ -1,6 +1,6 @@
 'use client';
 import {
-  BarChart3, Boxes, Briefcase, Building2, FileText, History, LayoutDashboard, LayoutTemplate, Receipt, Settings, ShieldCheck, Truck, UserSquare2, Users, UsersRound, Wallet,
+  BarChart3, Boxes, Briefcase, Building2, FileText, History, LayoutDashboard, LayoutTemplate, ReceiptIndianRupee, Settings, ShieldCheck, Truck, UserSquare2, Users, UsersRound, Wallet,
 } from 'lucide-react';
 import { Empty } from '@/components/ui';
 import { Shell, ShellFallback, TenantSwitcher, type NavItem } from '@/components/shell/shell';
@@ -12,7 +12,7 @@ const NAV: NavItem[] = [
   { href: '/app', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/app/services', label: 'Brands', icon: Building2, perm: 'service.view' },
   { href: '/app/invoices', label: 'Sales invoices', icon: FileText, perm: 'invoice.view', group: 'Billing' },
-  { href: '/app/purchases', label: 'Purchase bills', icon: Receipt, perm: 'invoice.view', group: 'Billing' },
+  { href: '/app/purchases', label: 'Purchase bills', icon: ReceiptIndianRupee, perm: 'invoice.view', group: 'Billing' },
   { href: '/app/payments', label: 'Payments', icon: Wallet, perm: 'payment.view', group: 'Billing' },
   { href: '/app/templates', label: 'Invoice templates', icon: LayoutTemplate, perm: 'template.view', group: 'Billing' },
   { href: '/app/customers', label: 'Customers', icon: UsersRound, perm: 'customer.view', group: 'Directory' },

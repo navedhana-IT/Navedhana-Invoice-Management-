@@ -50,7 +50,7 @@ export default function LoginPage() {
     <AuthShell
       title="Welcome back"
       subtitle="Sign in to your workspace."
-      footer={<>New to Navedhana Ledger? <Link href="/signup" className="font-medium text-primary hover:underline">Start a free trial</Link></>}
+      footer={<>New to nbills? <Link href="/signup" className="font-medium text-primary hover:underline">Start a free trial</Link></>}
     >
       <Suspense><LoginForm /></Suspense>
     </AuthShell>

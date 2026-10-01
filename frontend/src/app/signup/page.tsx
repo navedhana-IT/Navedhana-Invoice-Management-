@@ -3,7 +3,7 @@ import { AuthShell } from '@/components/auth-shell';
 import { SignupWizard } from '@/features/signup/wizard';
 import { getPlans, pageMeta } from '@/lib/seo';
 
-export const metadata = pageMeta('Start your free trial', 'Create your Navedhana Ledger workspace: company, first brand, branding and invoice numbering in a few minutes.', '/signup');
+export const metadata = pageMeta('Start your free trial', 'Create your nbills workspace: company, first brand, branding and invoice numbering in a few minutes.', '/signup');
 
 export default async function SignupPage({ searchParams }: { searchParams: Promise<{ plan?: string }> }) {
   const [{ plan }, plans] = await Promise.all([searchParams, getPlans()]);

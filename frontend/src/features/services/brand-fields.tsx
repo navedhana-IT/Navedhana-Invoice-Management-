@@ -30,7 +30,7 @@ export const brandBody = (v: BrandForm) => ({
   code: v.code.toUpperCase(),
 });
 
-const selectCls = 'select-chevron h-9 w-full appearance-none rounded-lg border bg-surface pl-3 pr-8 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring/60';
+const selectCls = 'select-chevron h-9 w-full appearance-none rounded-lg border border-border-input bg-surface pl-3 pr-8 text-sm shadow-xs hover:border-border-strong focus:outline-none focus:ring-2 focus:ring-ring/60';
 
 /** Brand profile fields, reused by the brand settings page and the onboarding wizard (`prefix` = "services.0."). */
 export function BrandFields({ register, prefix = '', sections = ['profile', 'tax', 'invoicing', 'bank'] }: {

@@ -20,7 +20,7 @@ function Inner({ children }: { children: React.ReactNode }) {
   if (!me.isMasterAdmin) return <div className="grid min-h-screen place-items-center"><Empty title="Master admin only" description="Your account cannot access the platform console."
     action={<Link href="/app" className={buttonClass({ variant: "secondary" })}>Go to workspace</Link>} /></div>;
   return (
-    <Shell nav={NAV} home="/admin" account="/admin/account" top={<span className="rounded-full bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-700 dark:text-violet-300">Platform admin</span>}>
+    <Shell nav={NAV} home="/admin" account="/admin/account" top={<span className="rounded-full bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-700 dark:text-amber-400">Platform admin</span>}>
       {children}
     </Shell>
   );

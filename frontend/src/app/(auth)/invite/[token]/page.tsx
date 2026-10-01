@@ -45,7 +45,7 @@ export default function InvitePage() {
   if (lookup.error) {
     const err = lookup.error as ApiError;
     return (
-      <AuthShell title={err.code === 'INVITATION_USED' ? 'Invitation already used' : 'This invitation can’t be used'} footer={<Link href="/" className="font-medium text-primary hover:underline">← Navedhana Ledger home</Link>}>
+      <AuthShell title={err.code === 'INVITATION_USED' ? 'Invitation already used' : 'This invitation can’t be used'} footer={<Link href="/" className="font-medium text-primary hover:underline">← nbills home</Link>}>
         <div className="grid gap-4">
           <Alert tone={err.code === 'INVITATION_USED' ? 'info' : 'warning'}>{err.message}</Alert>
           <Link href="/login" className={buttonClass({ size: 'lg' })}>Go to sign in</Link>
@@ -66,7 +66,7 @@ export default function InvitePage() {
   );
 
   return (
-    <AuthShell title={`Join ${inv.company}`} subtitle={inv.accountExists ? 'You already have a Navedhana Ledger account.' : 'Create your account to accept the invitation.'}>
+    <AuthShell title={`Join ${inv.company}`} subtitle={inv.accountExists ? 'You already have an nbills account.' : 'Create your account to accept the invitation.'}>
       {header}
       {inv.accountExists ? <AcceptExisting token={token} inv={inv} me={signedIn.data} loading={signedIn.isPending} /> : <AcceptNew token={token} inv={inv} />}
     </AuthShell>

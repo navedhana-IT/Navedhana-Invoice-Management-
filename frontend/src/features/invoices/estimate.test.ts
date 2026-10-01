@@ -1,5 +1,24 @@
 import { describe, expect, it } from 'vitest';
-import { autoTaxMode, estimate } from './estimate';
+import { autoTaxMode, estimate, estimateLine } from './estimate';
+
+describe('estimateLine', () => {
+  it('calculates single line subtotal and tax with discount', () => {
+    expect(estimateLine({ quantity: '2', unitPrice: '100', discount: '10', taxRate: '18' })).toEqual({
+      subtotal: 190,
+      tax: 34.2,
+      total: 224.2,
+    });
+  });
+
+  it('handles empty line or taxMode NONE', () => {
+    expect(estimateLine(undefined)).toEqual({ subtotal: 0, tax: 0, total: 0 });
+    expect(estimateLine({ quantity: '1', unitPrice: '100', taxRate: '18' }, 'NONE')).toEqual({
+      subtotal: 100,
+      tax: 0,
+      total: 100,
+    });
+  });
+});
 
 describe('estimate', () => {
   it('applies discount before tax and rounds tax per line', () => {

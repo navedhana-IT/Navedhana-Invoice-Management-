@@ -17,7 +17,7 @@ export function InvoiceList({ direction }: { direction: Direction }) {
     filters: ['status', 'payment', 'invoiceType', 'serviceId', 'from', 'to'],
     sort: 'createdAt:desc',
   });
-  const newHref = `/app/invoices/new${sales ? '' : '?type=PURCHASE'}`;
+  const newHref = sales ? '/app/invoices/new' : '/app/purchases/new';
   const brands = ctx?.services ?? [];
 
   return (
@@ -29,7 +29,7 @@ export function InvoiceList({ direction }: { direction: Direction }) {
       />
       <ListCard
         list={list}
-        onRowClick={(r) => router.push(`/app/invoices/${r.id}`)}
+        onRowClick={(r) => router.push(sales ? `/app/invoices/${r.id}` : `/app/purchases/${r.id}`)}
         rowLabel={(r) => `Open ${r.invoiceNumber ?? 'draft'} for ${partyName(r)}`}
         searchPlaceholder={sales ? 'Search number or customer…' : 'Search number, bill no. or vendor…'}
         toolbar={

@@ -197,7 +197,7 @@ function SearchBox({ value, onChange, placeholder }: { value: string; onChange: 
     return () => clearTimeout(t);
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <div className="relative w-full sm:max-w-xs">
+    <div className="relative w-44 sm:w-52 lg:w-60 max-w-full shrink-0">
       <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-fg-muted" aria-hidden />
       <Input type="search" value={text} onChange={(e) => setText(e.target.value)} placeholder={placeholder} aria-label={placeholder} className="pl-9 pr-8" />
       {text && (
@@ -223,11 +223,11 @@ export function ListCard<T extends { id: Id }>({ list, columns, onRowClick, tool
   const filtered = !!list.search || list.activeFilters > 0;
   return (
     <Card>
-      <div className="flex flex-col gap-2 border-b p-3 sm:flex-row sm:flex-wrap sm:items-center">
+      <div className="flex items-center gap-2 border-b p-2.5 sm:p-3 overflow-x-auto overscroll-x-contain">
         <SearchBox value={list.search} onChange={list.setSearch} placeholder={searchPlaceholder} />
-        {toolbar && <div className="flex flex-wrap items-center gap-2 [&>*]:min-w-0 [&>*]:flex-1 sm:[&>*]:flex-none">{toolbar}</div>}
+        {toolbar && <div className="flex items-center gap-2 shrink-0">{toolbar}</div>}
         {filtered && (
-          <Button variant="ghost" size="sm" onClick={list.clear} className="sm:ml-auto">
+          <Button variant="ghost" size="sm" onClick={list.clear} className="ml-auto shrink-0 whitespace-nowrap text-xs sm:text-sm">
             <X className="size-3.5" /> Clear filters
           </Button>
         )}
@@ -265,7 +265,7 @@ export function FilterSelect<T>({ list, name, label, options }: { list: ListStat
       aria-label={label}
       value={list.filters[name] ?? ''}
       onChange={(e) => list.setFilter(name, e.target.value || undefined)}
-      className="select-chevron h-9 cursor-pointer appearance-none rounded-lg border bg-surface pl-3 pr-8 text-sm shadow-sm hover:border-border-strong focus:outline-none focus:ring-2 focus:ring-ring/60"
+      className="select-chevron h-9 shrink-0 cursor-pointer appearance-none truncate rounded-lg border border-border-input bg-surface pl-2.5 pr-7 text-xs font-medium shadow-xs hover:border-border-strong focus:outline-none focus:ring-2 focus:ring-ring/60 sm:max-w-44 sm:text-sm"
     >
       <option value="">{label}: All</option>
       {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -275,9 +275,9 @@ export function FilterSelect<T>({ list, name, label, options }: { list: ListStat
 
 /** From/to date inputs bound to URL filter keys. */
 export function DateRangeFilter<T>({ list, from = 'from', to = 'to', label = 'Date' }: { list: ListState<T>; from?: string; to?: string; label?: string }) {
-  const cls = 'h-9 min-w-0 flex-1 rounded-lg border bg-surface px-1.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring/60 sm:flex-none sm:px-2';
+  const cls = 'h-9 w-28 sm:w-32 shrink-0 rounded-lg border border-border-input bg-surface px-1.5 text-xs sm:text-sm shadow-xs hover:border-border-strong focus:outline-none focus:ring-2 focus:ring-ring/60';
   return (
-    <div className="flex w-full min-w-0 items-center gap-1 sm:w-auto sm:gap-1.5" role="group" aria-label={`${label} range`}>
+    <div className="flex shrink-0 items-center gap-1 sm:gap-1.5" role="group" aria-label={`${label} range`}>
       <input type="date" aria-label={`${label} from`} value={list.filters[from] ?? ''} max={list.filters[to]} onChange={(e) => list.setFilter(from, e.target.value || undefined)} className={cls} />
       <span className="text-fg-muted" aria-hidden>–</span>
       <input type="date" aria-label={`${label} to`} value={list.filters[to] ?? ''} min={list.filters[from]} onChange={(e) => list.setFilter(to, e.target.value || undefined)} className={cls} />

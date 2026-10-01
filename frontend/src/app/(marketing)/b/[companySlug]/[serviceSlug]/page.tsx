@@ -49,7 +49,7 @@ export default async function BrandPage({ params }: Props) {
           // eslint-disable-next-line @next/next/no-img-element -- signed storage URL, host not known at build time
           <img src={brand.logoUrl} alt={`${name} logo`} className="size-20 rounded-2xl border bg-white object-contain p-2" />
         ) : (
-          <div className="grid size-20 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-3xl font-semibold text-white">{name[0]}</div>
+          <div className="grid size-20 place-items-center rounded-2xl bg-gradient-to-br from-[#fd8904] to-[#fe5003] text-3xl font-semibold text-white">{name[0]}</div>
         )}
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">{name}</h1>

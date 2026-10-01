@@ -1,6 +1,6 @@
 'use client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Ban, CalendarClock, Download, Eye, FileCheck2, Mail, MoreHorizontal, Pencil, Receipt, RefreshCw, Trash2, Undo2, Wallet } from 'lucide-react';
+import { ArrowLeft, Ban, CalendarClock, Download, Eye, FileCheck2, Mail, MoreHorizontal, Pencil, ReceiptIndianRupee, RefreshCw, Trash2, Undo2, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -91,7 +91,7 @@ export function InvoiceDetail({ id }: { id: Id }) {
             <Button variant="secondary" onClick={() => setDialog('preview')}><Eye className="size-4" /> Preview</Button>
             <Button variant="secondary" onClick={() => pdf(`/invoices/${id}/pdf`)}><Download className="size-4" /> PDF</Button>
             {sendable && can('invoice.send') && <Button variant="secondary" onClick={() => setDialog('send')}><Mail className="size-4" /> Email</Button>}
-            {draft && can('invoice.update') && <Link href={`/app/invoices/${id}/edit`} className={buttonClass({ variant: 'secondary' })}><Pencil className="size-4" /> Edit</Link>}
+            {draft && can('invoice.update') && <Link href={inv.direction === 'PAYABLE' ? `/app/purchases/${id}/edit` : `/app/invoices/${id}/edit`} className={buttonClass({ variant: 'secondary' })}><Pencil className="size-4" /> Edit</Link>}
             {draft && can('invoice.issue') && <Button loading={action.isPending} onClick={issue}><FileCheck2 className="size-4" /> Issue</Button>}
             {convertible && can('invoice.create') && <Button loading={action.isPending} onClick={convert}><FileCheck2 className="size-4" /> Convert to tax invoice</Button>}
             {payable && can('payment.create') && <Button onClick={() => setDialog('pay')}><Wallet className="size-4" /> Record payment</Button>}
@@ -174,7 +174,7 @@ export function InvoiceDetail({ id }: { id: Id }) {
                     <div className="flex items-center gap-1">
                       <Badge value={p.status} />
                       {p.receiptNumber && (
-                        <Button variant="ghost" size="icon-sm" aria-label={`Download ${inv.direction === 'PAYABLE' ? 'voucher' : 'receipt'} ${p.receiptNumber}`} onClick={() => pdf(`/payments/${p.id}/pdf`)}><Receipt className="size-4" /></Button>
+                        <Button variant="ghost" size="icon-sm" aria-label={`Download ${inv.direction === 'PAYABLE' ? 'voucher' : 'receipt'} ${p.receiptNumber}`} onClick={() => pdf(`/payments/${p.id}/pdf`)}><ReceiptIndianRupee className="size-4" /></Button>
                       )}
                       {p.status === 'SUCCESS' && !p.reversalOfId && can('payment.refund') && (
                         <DropdownMenu label="Payment actions" trigger={<Button variant="ghost" size="icon-sm" aria-label="Payment actions"><MoreHorizontal className="size-4" /></Button>}>

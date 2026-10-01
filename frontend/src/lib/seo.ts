@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { Id } from '@/lib/ids';
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
-export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? 'Navedhana Ledger';
+export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? 'nbills';
 export const SITE_DESCRIPTION = 'GST-ready invoicing, payment schedules, receipts and reporting for companies that run multiple brands and services. A Navedhana Product.';
 export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? 'hello@navedhana.com';
 export const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? 'support@navedhana.com';

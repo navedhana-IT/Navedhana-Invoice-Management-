@@ -2,9 +2,9 @@ import type { Id } from '@/lib/ids';
 /** Mirrors backend `templateConfigSchema` (the server validates every save with Zod). */
 export const SECTION_TYPES = [
   'logo', 'company_header', 'invoice_details', 'customer_details', 'items_table', 'tax_table', 'totals',
-  'payment_schedule', 'bank_details', 'terms', 'signature', 'custom_text', 'custom_image', 'custom_field', 'qr_code', 'footer',
+  'payment_schedule', 'payments', 'bank_details', 'terms', 'signature', 'custom_text', 'custom_image', 'qr_code', 'footer',
 ] as const;
-export type SectionType = (typeof SECTION_TYPES)[number];
+export type SectionType = (typeof SECTION_TYPES)[number] | 'custom_field';
 
 export type Section = { id: string; type: SectionType; width: 'full' | 'half'; props: Record<string, unknown> };
 
@@ -43,6 +43,7 @@ export type Template = {
 export const SECTION_LABELS: Record<SectionType, string> = {
   logo: 'Logo', company_header: 'Company header', invoice_details: 'Invoice details', customer_details: 'Bill to',
   items_table: 'Items table', tax_table: 'Tax breakup', totals: 'Totals', payment_schedule: 'Payment schedule',
-  bank_details: 'Bank details', terms: 'Terms', signature: 'Signature', custom_text: 'Text block', custom_image: 'Image',
-  custom_field: 'Custom field', qr_code: 'Payment QR code', footer: 'Footer text',
+  payments: 'Payments', bank_details: 'Bank details', terms: 'Terms', signature: 'Signature',
+  custom_text: 'Text block', custom_image: 'Image', custom_field: 'Custom field',
+  qr_code: 'Payment QR code', footer: 'Footer text',
 };

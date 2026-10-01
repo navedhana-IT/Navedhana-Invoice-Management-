@@ -1,11 +1,11 @@
-import { BarChart3, Bell, Building2, CalendarClock, FileText, LayoutTemplate, Receipt, ShieldCheck, Users } from 'lucide-react';
+import { BarChart3, Bell, Building2, CalendarClock, FileText, LayoutTemplate, ReceiptIndianRupee, ShieldCheck, Users } from 'lucide-react';
 
 export const features = [
   { icon: Building2, title: 'One company, many brands', text: 'Run every service or brand with its own logo, GSTIN, bank account, invoice series and template.' },
   { icon: FileText, title: 'GST-ready invoicing', text: 'Tax, proforma, purchase, credit and debit notes with CGST/SGST/IGST computed on the server.' },
   { icon: CalendarClock, title: 'Flexible payment schedules', text: 'Split invoices into stages with fixed, optional or no due dates and record partial payments.' },
   { icon: LayoutTemplate, title: 'Template builder', text: 'Drag-and-drop invoice layouts, versioned and published per brand. Issued invoices never change.' },
-  { icon: Receipt, title: 'Receipts & vouchers', text: 'Every payment gets its own numbered receipt (sales) or voucher (purchases) as a PDF.' },
+  { icon: ReceiptIndianRupee, title: 'Receipts & vouchers', text: 'Every payment gets its own numbered receipt (sales) or voucher (purchases) as a PDF.' },
   { icon: BarChart3, title: 'Reports that add up', text: 'Receivables aging, payables, GST summaries, collections and revenue per brand.' },
   { icon: Users, title: 'Team & roles', text: 'Invite colleagues by email and give each person exactly the brands and permissions they need.' },
   { icon: Bell, title: 'Live notifications', text: 'Payments, overdue invoices and published templates appear instantly — in the app and by email.' },
@@ -20,7 +20,7 @@ export const faqs = [
   { q: 'Can I change an invoice after issuing it?', a: 'Issued invoices are frozen for audit purposes: number, branding, template and amounts never change. Use a credit or debit note to adjust, or cancel/void it if it was raised in error.' },
   { q: 'How do I add my team?', a: 'Send an invitation from the Members page. Invites are single-use, expire automatically and can be revoked at any time. You choose each person’s role and which brands they can see.' },
   { q: 'Where is my data stored?', a: 'In PostgreSQL with strict per-company isolation, and documents in private object storage. Files are streamed through the API — storage links are never exposed.' },
-  { q: 'Do you support recurring bookings or lead management?', a: 'Not today. Navedhana Ledger focuses on invoicing, payments and reporting, and does them thoroughly.' },
+  { q: 'Do you support recurring bookings or lead management?', a: 'Not today. nbills focuses on invoicing, payments and reporting, and does them thoroughly.' },
 ];
 
 /** Static editorial content (no CMS yet). */

@@ -173,7 +173,7 @@ function AccessForm({ member, onDone }: { member: Member; onDone: () => void }) 
           <legend className="mb-2 text-sm font-medium">Brand access</legend>
           <div className="grid gap-2 sm:grid-cols-2">
             {ctx.services.map((s) => (
-              <label key={s.id} className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"><input type="checkbox" value={s.id} className="size-4 accent-[var(--primary)]" {...register('serviceIds')} />{s.displayName ?? s.name}</label>
+              <label key={s.id} className="flex cursor-pointer items-center gap-2 rounded-lg border border-border-input bg-surface px-3 py-2 text-sm hover:border-border-strong"><input type="checkbox" value={s.id} className="size-4 accent-[var(--primary)]" {...register('serviceIds')} />{s.displayName ?? s.name}</label>
             ))}
           </div>
           <p className="mt-2 text-xs text-fg-muted">Roles that cover all brands, like Company Admin, see every brand regardless.</p>

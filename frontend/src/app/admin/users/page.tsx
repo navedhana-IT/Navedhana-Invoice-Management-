@@ -36,7 +36,7 @@ export default function PlatformUsersPage() {
 
   return (
     <>
-      <PageHeader title="Users" description="Everyone with a Navedhana Ledger account, across all companies." />
+      <PageHeader title="Users" description="Everyone with an nbills account, across all companies." />
       <ListCard
         list={list}
         searchPlaceholder="Search name or email…"
@@ -47,7 +47,7 @@ export default function PlatformUsersPage() {
             key: 'user', header: 'User', sort: 'fullName', primary: true,
             cell: (u) => (
               <div className="min-w-0">
-                <p className="flex items-center gap-2 truncate font-medium">{u.fullName}{u.isMasterAdmin && <span className="rounded-full bg-violet-500/10 px-2 py-0.5 text-[11px] font-medium text-violet-700 dark:text-violet-300">Platform admin</span>}</p>
+                <p className="flex items-center gap-2 truncate font-medium">{u.fullName}{u.isMasterAdmin && <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-400">Platform admin</span>}</p>
                 <p className="truncate text-xs text-fg-muted">{u.email}</p>
               </div>
             ),

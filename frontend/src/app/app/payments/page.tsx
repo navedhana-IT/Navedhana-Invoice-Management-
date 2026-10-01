@@ -1,5 +1,5 @@
 'use client';
-import { Receipt, Wallet } from 'lucide-react';
+import { ReceiptIndianRupee, Wallet } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { DateRangeFilter, FilterSelect, ListCard, PageHeader, useList } from '@/components/data';
@@ -59,7 +59,7 @@ export default function PaymentsPage() {
             key: 'pdf', header: 'PDF',
             cell: (r) => r.receiptNumber && r.status === 'SUCCESS' && (
               <Button variant="ghost" size="icon-sm" aria-label={`Download ${r.invoice.direction === 'PAYABLE' ? 'voucher' : 'receipt'} ${r.receiptNumber}`} onClick={(e) => { e.stopPropagation(); pdf(r.id); }}>
-                <Receipt className="size-4" />
+                <ReceiptIndianRupee className="size-4" />
               </Button>
             ),
           },

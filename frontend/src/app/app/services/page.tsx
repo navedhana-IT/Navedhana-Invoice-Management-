@@ -33,7 +33,7 @@ export default function ServicesPage() {
             <Link key={s.id} href={`/app/services/${s.id}`}>
               <Card className="h-full p-5 transition hover:border-primary hover:shadow-md">
                 <div className="flex items-start justify-between">
-                  <div className="grid size-11 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 font-semibold text-white">{s.name[0]}</div>
+                  <div className="grid size-11 place-items-center rounded-xl bg-gradient-to-br from-[#fd8904] to-[#fe5003] font-semibold text-white">{s.name[0]}</div>
                   <Badge value={s.status} />
                 </div>
                 <h2 className="mt-4 font-semibold">{s.displayName || s.name}</h2>

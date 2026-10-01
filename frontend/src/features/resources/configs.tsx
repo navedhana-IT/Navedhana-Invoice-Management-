@@ -16,16 +16,6 @@ const statusOptions = [{ value: 'ACTIVE', label: 'Active' }, { value: 'INACTIVE'
 const status: FieldDef = { name: 'status', label: 'Status', type: 'select', options: statusOptions };
 const statusFilter = { name: 'status', label: 'Status', options: statusOptions };
 
-const party: FieldDef[] = [
-  { name: 'name', label: 'Name', required: true, full: true },
-  { name: 'email', label: 'Email', type: 'email', pattern: EMAIL },
-  { name: 'phone', label: 'Phone', type: 'tel', pattern: PHONE },
-  { name: 'gstin', label: 'GSTIN', pattern: GSTIN, upper: true },
-  { name: 'pan', label: 'PAN', pattern: PAN, upper: true },
-  { name: 'state', label: 'State', hint: 'Decides CGST/SGST vs IGST' },
-  status,
-];
-
 const partyCols = [
   { key: 'name', header: 'Name', sort: 'name', primary: true, cell: (r: R) => <span className="font-medium">{r.name}</span> },
   { key: 'contact', header: 'Contact', cell: (r: R) => <span className="text-fg-muted">{r.email ?? r.phone ?? '—'}</span> },
@@ -38,13 +28,37 @@ const partyCols = [
 export const customers: ResourceConfig<R> = {
   path: 'customers', resource: 'customer', title: 'Customers', singular: 'customer', description: 'People and businesses you bill.',
   columns: partyCols, filters: [statusFilter], dateFilter: true, search: 'Search name, email, phone or GSTIN…',
-  fields: [...party, { name: 'billingAddress', label: 'Billing address', type: 'textarea' }, { name: 'shippingAddress', label: 'Shipping address', type: 'textarea' }, { name: 'notes', label: 'Notes', type: 'textarea' }],
+  gridCols: 'sm:grid-cols-6',
+  fields: [
+    { name: 'name', label: 'Name', required: true, colSpan: 'sm:col-span-4', placeholder: 'Company or customer name' },
+    { name: 'status', label: 'Status', type: 'select', options: statusOptions, colSpan: 'sm:col-span-2' },
+    { name: 'email', label: 'Email', type: 'email', pattern: EMAIL, colSpan: 'sm:col-span-2', placeholder: 'name@company.com' },
+    { name: 'phone', label: 'Phone', type: 'tel', pattern: PHONE, colSpan: 'sm:col-span-2', placeholder: '+91 98765 43210' },
+    { name: 'state', label: 'State', colSpan: 'sm:col-span-2', placeholder: 'e.g. Karnataka' },
+    { name: 'gstin', label: 'GSTIN', pattern: GSTIN, upper: true, colSpan: 'sm:col-span-3', placeholder: '15-digit GSTIN (optional)' },
+    { name: 'pan', label: 'PAN', pattern: PAN, upper: true, colSpan: 'sm:col-span-3', placeholder: '10-digit PAN (optional)' },
+    { name: 'billingAddress', label: 'Billing address', type: 'textarea', colSpan: 'sm:col-span-3', rows: 2, placeholder: 'Street, city, postal code...' },
+    { name: 'shippingAddress', label: 'Shipping address', type: 'textarea', colSpan: 'sm:col-span-3', rows: 2, placeholder: 'Leave blank if same as billing...' },
+    { name: 'notes', label: 'Notes', type: 'textarea', colSpan: 'sm:col-span-6', rows: 2, placeholder: 'Internal notes (optional)...' },
+  ],
 };
 
 export const vendors: ResourceConfig<R> = {
   path: 'vendors', resource: 'vendor', title: 'Vendors', singular: 'vendor', description: 'Suppliers you receive bills from.',
   columns: partyCols, filters: [statusFilter], dateFilter: true, search: 'Search name, email, phone or GSTIN…',
-  fields: [...party, { name: 'paymentTermsDays', label: 'Payment terms (days)', type: 'number', pattern: [/^\d{1,3}$/, 'Whole days, up to 999'] }, { name: 'address', label: 'Address', type: 'textarea' }, { name: 'notes', label: 'Notes', type: 'textarea' }],
+  gridCols: 'sm:grid-cols-6',
+  fields: [
+    { name: 'name', label: 'Name', required: true, colSpan: 'sm:col-span-4', placeholder: 'Vendor or supplier name' },
+    { name: 'status', label: 'Status', type: 'select', options: statusOptions, colSpan: 'sm:col-span-2' },
+    { name: 'email', label: 'Email', type: 'email', pattern: EMAIL, colSpan: 'sm:col-span-2', placeholder: 'vendor@supplier.com' },
+    { name: 'phone', label: 'Phone', type: 'tel', pattern: PHONE, colSpan: 'sm:col-span-2', placeholder: '+91 98765 43210' },
+    { name: 'state', label: 'State', colSpan: 'sm:col-span-2', placeholder: 'e.g. Karnataka' },
+    { name: 'gstin', label: 'GSTIN', pattern: GSTIN, upper: true, colSpan: 'sm:col-span-2', placeholder: '15-digit GSTIN' },
+    { name: 'pan', label: 'PAN', pattern: PAN, upper: true, colSpan: 'sm:col-span-2', placeholder: '10-digit PAN' },
+    { name: 'paymentTermsDays', label: 'Payment terms (days)', type: 'number', pattern: [/^\d{1,3}$/, 'Whole days, up to 999'], colSpan: 'sm:col-span-2', placeholder: 'e.g. 30' },
+    { name: 'address', label: 'Address', type: 'textarea', colSpan: 'sm:col-span-3', rows: 2, placeholder: 'Vendor office address...' },
+    { name: 'notes', label: 'Notes', type: 'textarea', colSpan: 'sm:col-span-3', rows: 2, placeholder: 'Internal notes...' },
+  ],
 };
 
 export const products: ResourceConfig<R> = {

@@ -260,7 +260,7 @@ export function SignupWizard({ plans, initialPlan }: { plans: PublicPlan[]; init
                 {/* eslint-disable-next-line @next/next/no-img-element -- local blob: preview, next/image can't optimize it */}
                 {logoUrl ? <img src={logoUrl} alt="Logo preview" className="size-full object-contain p-1" /> : <ImagePlus className="size-6 text-fg-subtle" aria-hidden />}
               </div>
-              <label className="cursor-pointer rounded-lg border bg-surface px-3 py-2 text-sm font-medium shadow-sm hover:bg-surface-2 focus-within:ring-2 focus-within:ring-ring/60">
+              <label className="cursor-pointer rounded-lg border border-border-input bg-surface px-3 py-2 text-sm font-medium shadow-xs hover:border-border-strong hover:bg-surface-2 focus-within:ring-2 focus-within:ring-ring/60">
                 {logo ? 'Change logo' : 'Upload logo'}
                 <input type="file" accept={LOGO_TYPES.join(',')} className="sr-only" onChange={(e) => pickLogo(e.target.files?.[0])} />
               </label>
@@ -291,7 +291,7 @@ export function SignupWizard({ plans, initialPlan }: { plans: PublicPlan[]; init
             <legend className="mb-2 text-sm font-medium">Document numbering</legend>
             <div className="grid gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Numbering style">
               {(Object.keys(NUMBER_STYLES) as NumberStyle[]).map((k) => (
-                <label key={k} className={cn('cursor-pointer rounded-xl border p-3 text-sm transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/60', inv.style === k ? 'border-primary bg-primary-soft' : 'hover:border-border-strong')}>
+                <label key={k} className={cn('cursor-pointer rounded-xl border border-border-input p-3 text-sm transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/60', inv.style === k ? 'border-primary bg-primary-soft' : 'hover:border-border-strong')}>
                   <input type="radio" value={k} className="sr-only" {...register('invoicing.style')} />
                   <span className="block font-medium">{NUMBER_STYLES[k].label}</span>
                   <span className="block text-xs text-fg-muted">{NUMBER_STYLES[k].example}</span>
@@ -342,14 +342,14 @@ export function SignupWizard({ plans, initialPlan }: { plans: PublicPlan[]; init
             ) : (
               <div className="grid gap-2" role="radiogroup" aria-label="Plan">
                 {plans.map((p) => (
-                  <label key={p.id} className={cn('flex cursor-pointer items-center justify-between gap-3 rounded-xl border p-3 text-sm transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/60', values.planId === String(p.id) ? 'border-primary bg-primary-soft' : 'hover:border-border-strong')}>
+                  <label key={p.id} className={cn('flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-border-input p-3 text-sm transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/60', values.planId === String(p.id) ? 'border-primary bg-primary-soft' : 'hover:border-border-strong')}>
                     <input type="radio" value={p.id} className="sr-only" {...register('planId')} />
                     <span>
                       <span className="font-medium">{p.name}</span>
                       {p.highlighted && <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-[11px] font-medium text-primary-fg">Popular</span>}
                       <span className="block text-xs text-fg-muted">{p.trialDays > 0 ? `${p.trialDays}-day free trial, then ` : ''}{priceText(p.price, p.currency)} / {p.interval === 'YEARLY' ? 'year' : 'month'}</span>
                     </span>
-                    <span className={cn('grid size-5 shrink-0 place-items-center rounded-full border', values.planId === String(p.id) && 'border-primary bg-primary text-primary-fg')}>
+                    <span className={cn('grid size-5 shrink-0 place-items-center rounded-full border border-border-input', values.planId === String(p.id) && 'border-primary bg-primary text-primary-fg')}>
                       {values.planId === String(p.id) && <Check className="size-3.5" aria-hidden />}
                     </span>
                   </label>

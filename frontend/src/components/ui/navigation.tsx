@@ -22,7 +22,7 @@ export function Pagination({ page, limit, total, onPage, onLimit, className }: {
         {onLimit && (
           <label className="hidden items-center gap-2 sm:flex">
             <span>Rows</span>
-            <select value={limit} onChange={(e) => onLimit(Number(e.target.value))} className="select-chevron h-8 cursor-pointer appearance-none rounded-lg border bg-surface pl-2 pr-7 text-xs">
+            <select value={limit} onChange={(e) => onLimit(Number(e.target.value))} className="select-chevron h-8 cursor-pointer appearance-none rounded-lg border border-border-input bg-surface pl-2 pr-7 text-xs hover:border-border-strong focus:outline-none focus:ring-2 focus:ring-ring/60">
               {LIMITS.map((l) => <option key={l} value={l}>{l}</option>)}
             </select>
           </label>

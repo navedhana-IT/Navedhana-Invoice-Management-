@@ -31,3 +31,13 @@ export function estimate(lines: Line[], taxMode: TaxMode = 'INTRA_STATE') {
   const tax = cgst + sgst + igst;
   return { subtotal: sub / 100, tax: tax / 100, cgst: cgst / 100, sgst: sgst / 100, igst: igst / 100, total: (sub + tax) / 100 };
 }
+
+/**
+ * Live preview for a single line item.
+ */
+export function estimateLine(l?: Line, taxMode: TaxMode = 'INTRA_STATE') {
+  if (!l) return { subtotal: 0, tax: 0, total: 0 };
+  const base = Math.max(0, Math.round(Number(l.quantity || 0) * Number(l.unitPrice || 0) * 100) - Math.round(Number(l.discount || 0) * 100));
+  const tax = taxMode === 'NONE' ? 0 : Math.round((base * Number(l.taxRate || 0)) / 100);
+  return { subtotal: base / 100, tax: tax / 100, total: (base + tax) / 100 };
+}

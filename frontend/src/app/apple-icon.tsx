@@ -1,16 +1,34 @@
 import { ImageResponse } from 'next/og';
+import fs from 'node:fs';
+import path from 'node:path';
 
 export const size = { width: 180, height: 180 };
 export const contentType = 'image/png';
 
 export default function AppleIcon() {
+  const iconBuffer = fs.readFileSync(path.join(process.cwd(), 'public/logo-mark.png'));
+  const iconBase64 = `data:image/png;base64,${iconBuffer.toString('base64')}`;
+
   return new ImageResponse(
     (
-      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#6366f1,#7c3aed)' }}>
-        <svg width="120" height="120" viewBox="0 0 32 32">
-          <path d="M9 23V9.5l14 13V9" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M9 26.5h14" stroke="#fff" strokeOpacity=".45" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#ffffff',
+          borderRadius: 36,
+        }}
+      >
+        <img
+          src={iconBase64}
+          alt=""
+          width="130"
+          height="130"
+          style={{ objectFit: 'contain' }}
+        />
       </div>
     ),
     size,

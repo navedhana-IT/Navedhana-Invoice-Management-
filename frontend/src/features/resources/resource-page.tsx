@@ -9,12 +9,13 @@ import { Button, Combobox, Dialog, Empty, Field, Input, Select, Textarea, useCon
 import { api } from '@/lib/api';
 import { useSession } from '@/lib/session';
 import { toId, type Id } from '@/lib/ids';
+import { cn } from '@/lib/utils';
 
 export type FieldDef = {
   /** `number` is sent as an integer; `decimal` stays a string so money never passes through floats. */
   name: string; label: string; type?: 'text' | 'email' | 'tel' | 'number' | 'decimal' | 'date' | 'textarea' | 'select' | 'service';
   required?: boolean; pattern?: [RegExp, string]; options?: { value: string; label: string }[]; optionsFrom?: { path: string; label: string };
-  full?: boolean; hint?: string; upper?: boolean;
+  full?: boolean; hint?: string; upper?: boolean; colSpan?: string; rows?: number; placeholder?: string;
 };
 
 export type ResourceConfig<T> = {
@@ -23,6 +24,7 @@ export type ResourceConfig<T> = {
   filters?: { name: string; label: string; options: { value: string; label: string }[] }[];
   dateFilter?: boolean;
   search?: string;
+  gridCols?: string;
 };
 
 type Row = { id: Id } & Record<string, unknown>;
@@ -65,7 +67,7 @@ export function ResourcePage<T extends Row>({ cfg, actions }: { cfg: ResourceCon
   );
 }
 
-function ResourceForm<T extends Row>({ cfg, record, onDone }: { cfg: ResourceConfig<T>; record: T | null; onDone: () => void }) {
+export function ResourceForm<T extends Row>({ cfg, record, onDone, onCreated }: { cfg: ResourceConfig<T>; record: T | null; onDone: () => void; onCreated?: (record: T) => void }) {
   const qc = useQueryClient();
   const { can } = useSession();
   const confirm = useConfirm();
@@ -73,8 +75,15 @@ function ResourceForm<T extends Row>({ cfg, record, onDone }: { cfg: ResourceCon
   const { register, control, handleSubmit, formState: { errors, isDirty } } = useForm<Record<string, string>>({ defaultValues: defaults });
 
   const save = useMutation({
-    mutationFn: (body: Record<string, unknown>) => (record ? api(`/${cfg.path}/${record.id}`, { method: 'PATCH', body }) : api(`/${cfg.path}`, { body })),
-    onSuccess: () => { toast.success(record ? `${cap(cfg.singular)} updated` : `${cap(cfg.singular)} added`); qc.invalidateQueries({ queryKey: [`/${cfg.path}`] }); onDone(); },
+    mutationFn: (body: Record<string, unknown>) => (record ? api<T>(`/${cfg.path}/${record.id}`, { method: 'PATCH', body }) : api<T>(`/${cfg.path}`, { body })),
+    onSuccess: (saved) => {
+      toast.success(record ? `${cap(cfg.singular)} updated` : `${cap(cfg.singular)} added`);
+      qc.invalidateQueries({ queryKey: [`/${cfg.path}`] });
+      if (!record && saved) {
+        onCreated?.(saved);
+      }
+      onDone();
+    },
   });
   const remove = useMutation({
     mutationFn: () => api(`/${cfg.path}/${record!.id}`, { method: 'DELETE' }),
@@ -97,9 +106,18 @@ function ResourceForm<T extends Row>({ cfg, record, onDone }: { cfg: ResourceCon
   };
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2" noValidate>
+    <form onSubmit={onSubmit} className={cn('grid gap-3 sm:grid-cols-2', cfg.gridCols)} noValidate>
       {cfg.fields.map((f) => (
-        <Field key={f.name} label={f.label} required={f.required} error={errors[f.name]?.message} hint={f.hint} className={f.full || f.type === 'textarea' ? 'sm:col-span-2' : ''}>
+        <Field
+          key={f.name}
+          label={f.label}
+          required={f.required}
+          error={errors[f.name]?.message}
+          hint={f.hint}
+          className={cn(
+            f.colSpan ?? (f.full || f.type === 'textarea' ? (cfg.gridCols ? 'sm:col-span-full' : 'sm:col-span-2') : '')
+          )}
+        >
           {f.optionsFrom ? (
             <RemoteSelect f={f} control={control} selectedLabel={labelFor(record, f)} />
           ) : (
@@ -107,15 +125,15 @@ function ResourceForm<T extends Row>({ cfg, record, onDone }: { cfg: ResourceCon
           )}
         </Field>
       ))}
-      <div className="flex flex-col-reverse gap-2 border-t pt-4 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className={cn('flex flex-col-reverse gap-2 border-t pt-3 sm:flex-row sm:items-center sm:justify-between', cfg.gridCols ? 'sm:col-span-full' : 'sm:col-span-2')}>
         {record && can(`${cfg.resource}.delete`) ? (
-          <Button type="button" variant="danger-ghost" loading={remove.isPending} onClick={askDelete}>
+          <Button type="button" variant="danger-ghost" size="sm" loading={remove.isPending} onClick={askDelete}>
             <Trash2 className="size-4" /> Delete
           </Button>
         ) : <span />}
         <div className="flex flex-col-reverse gap-2 sm:flex-row">
-          <Button type="button" variant="secondary" onClick={onDone}>Cancel</Button>
-          <Button type="submit" loading={save.isPending} disabled={!!record && !isDirty}>{record ? 'Save changes' : `Add ${cfg.singular}`}</Button>
+          <Button type="button" variant="secondary" size="sm" onClick={onDone}>Cancel</Button>
+          <Button type="submit" size="sm" loading={save.isPending} disabled={!!record && !isDirty}>{record ? 'Save changes' : `Add ${cfg.singular}`}</Button>
         </div>
       </div>
     </form>
@@ -147,11 +165,21 @@ function RemoteSelect({ f, control, selectedLabel, ...rest }: { f: FieldDef; con
 
 function FieldInput({ f, reg, ...rest }: { f: FieldDef; reg: ReturnType<ReturnType<typeof useForm>['register']> }) {
   const { ctx } = useSession();
-  if (f.type === 'textarea') return <Textarea {...rest} {...reg} />;
+  if (f.type === 'textarea') {
+    return (
+      <Textarea
+        {...rest}
+        rows={f.rows ?? 2}
+        placeholder={f.placeholder}
+        className={cn('min-h-[2.85rem] h-12 py-1.5 text-sm resize-none', f.rows && f.rows > 2 ? 'h-20 min-h-20' : '')}
+        {...reg}
+      />
+    );
+  }
   if (f.type === 'select' || f.type === 'service') {
     const options = f.type === 'service' ? (ctx?.services ?? []).map((s) => ({ value: String(s.id), label: s.displayName ?? s.name })) : f.options ?? [];
     return (
-      <Select {...rest} {...reg}>
+      <Select {...rest} className="h-9 text-sm" {...reg}>
         <option value="">{f.type === 'service' ? 'All brands (company-wide)' : '—'}</option>
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </Select>
@@ -164,6 +192,8 @@ function FieldInput({ f, reg, ...rest }: { f: FieldDef; reg: ReturnType<ReturnTy
       type={numeric ? 'text' : f.type ?? 'text'}
       inputMode={f.type === 'number' ? 'numeric' : f.type === 'decimal' ? 'decimal' : undefined}
       autoComplete={f.type === 'email' ? 'email' : f.type === 'tel' ? 'tel' : undefined}
+      placeholder={f.placeholder}
+      className="h-9 text-sm"
       {...reg}
     />
   );

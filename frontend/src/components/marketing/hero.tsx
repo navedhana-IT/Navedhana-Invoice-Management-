@@ -24,7 +24,7 @@ export function Hero({ trialDays }: { trialDays?: number }) {
         <motion.h1 initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.05 }}
           className="mx-auto mt-6 max-w-4xl text-balance text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
           Every brand. Every invoice.{' '}
-          <span className="bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 bg-clip-text text-transparent">One ledger.</span>
+          <span className="bg-gradient-to-r from-[#fd8904] via-[#fe5003] to-[#fb743a] bg-clip-text text-transparent">One ledger.</span>
         </motion.h1>
         <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.12 }}
           className="mx-auto mt-5 max-w-2xl text-pretty text-base text-fg-muted sm:text-lg">
@@ -66,7 +66,7 @@ export function Hero({ trialDays }: { trialDays?: number }) {
                   <div className="mt-3 flex h-24 items-end gap-1.5 sm:h-32">
                     {bars.map((h, i) => (
                       <motion.div key={i} initial={{ height: 0 }} animate={{ height: `${h}%` }} transition={{ delay: 0.6 + i * 0.04, duration: 0.6, ease: 'easeOut' }}
-                        className="flex-1 rounded-t bg-gradient-to-t from-indigo-500/70 to-violet-400/70" />
+                        className="flex-1 rounded-t bg-gradient-to-t from-[#fe5003]/80 to-[#fd8904]/70" />
                     ))}
                   </div>
                 </div>

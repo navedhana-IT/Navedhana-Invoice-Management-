@@ -8,7 +8,7 @@ export function ErrorScreen({ code, title, description, actions, bare }: { code?
     <main className={bare ? 'grid place-items-center px-4 py-16' : 'grid min-h-dvh place-items-center bg-bg px-4 py-16'}>
       <div className="w-full max-w-md text-center">
         {!bare && <div className="mb-10 flex justify-center"><Logo /></div>}
-        {code && <p className="bg-gradient-to-br from-indigo-500 to-violet-600 bg-clip-text text-6xl font-bold tracking-tight text-transparent">{code}</p>}
+        {code && <p className="bg-gradient-to-br from-[#fd8904] to-[#fe5003] bg-clip-text text-6xl font-bold tracking-tight text-transparent">{code}</p>}
         <h1 className="mt-4 text-2xl font-semibold tracking-tight">{title}</h1>
         <div className="mt-2 text-fg-muted">{description}</div>
         <div className="mt-8 flex flex-col justify-center gap-2 sm:flex-row">

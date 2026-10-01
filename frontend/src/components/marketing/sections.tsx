@@ -1,5 +1,5 @@
 import {
-  ArrowRight, BadgeCheck, BarChart3, Building2, Check, FileLock2, Fingerprint, Hash, History, KeyRound, LayoutTemplate, Lock, Palette, Receipt, ShieldCheck, Truck, UserPlus, Users, UsersRound,
+  ArrowRight, BadgeCheck, BarChart3, Building2, Check, FileLock2, Fingerprint, Hash, History, KeyRound, LayoutTemplate, Lock, Palette, ReceiptIndianRupee, ShieldCheck, Truck, UserPlus, Users, UsersRound,
 } from 'lucide-react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
@@ -57,7 +57,7 @@ export function Bento() {
         <Tile f={a} className="md:col-span-2">
           <div className="mt-5 flex flex-wrap gap-2" aria-hidden>
             {['Navedhana Solar', 'Lotus Power', 'Agri Care'].map((n, k) => (
-              <span key={n} className="inline-flex items-center gap-2 rounded-full border bg-surface-2 px-3 py-1 text-xs"><span className={cn('size-2 rounded-full', ['bg-indigo-500', 'bg-amber-500', 'bg-emerald-500'][k])} />{n}</span>
+              <span key={n} className="inline-flex items-center gap-2 rounded-full border bg-surface-2 px-3 py-1 text-xs"><span className={cn('size-2 rounded-full', ['bg-[#fe5003]', 'bg-amber-500', 'bg-emerald-500'][k])} />{n}</span>
             ))}
           </div>
         </Tile>
@@ -76,7 +76,7 @@ export function Bento() {
 
 export function Architecture() {
   const brands = [
-    { name: 'Navedhana Solar', code: 'NSS', color: 'from-indigo-500 to-violet-500' },
+    { name: 'Navedhana Solar', code: 'NSS', color: 'from-[#fd8904] to-[#fe5003]' },
     { name: 'Lotus Solar Power', code: 'LSP', color: 'from-amber-500 to-orange-500' },
     { name: 'Navedhana Agri', code: 'NAG', color: 'from-emerald-500 to-teal-500' },
   ];
@@ -204,12 +204,12 @@ export function Templates() {
         <div className="rounded-2xl border bg-surface p-5 shadow-md" aria-hidden>
           <div className="flex items-center gap-2 text-sm font-semibold"><LayoutTemplate className="size-4 text-primary" /> Classic · v3 <span className="ml-auto rounded-full bg-success-soft px-2 py-0.5 text-[10px] font-medium text-success">Published</span></div>
           <div className="mt-4 rounded-lg border bg-white p-4 text-slate-800">
-            <div className="flex items-start justify-between border-b-2 border-indigo-500 pb-2"><div className="h-6 w-20 rounded bg-indigo-100" /><div className="space-y-1 text-right"><div className="ml-auto h-2 w-24 rounded bg-slate-200" /><div className="ml-auto h-2 w-16 rounded bg-slate-200" /></div></div>
+            <div className="flex items-start justify-between border-b-2 border-primary pb-2"><div className="h-6 w-20 rounded bg-primary/20" /><div className="space-y-1 text-right"><div className="ml-auto h-2 w-24 rounded bg-slate-200" /><div className="ml-auto h-2 w-16 rounded bg-slate-200" /></div></div>
             <div className="mt-3 grid grid-cols-2 gap-2">{[0, 1].map((k) => <div key={k} className="h-12 rounded border border-dashed border-slate-300 bg-slate-50" />)}</div>
-            <div className="mt-2 h-20 rounded border border-dashed border-indigo-300 bg-indigo-50/60" />
+            <div className="mt-2 h-20 rounded border border-dashed border-primary/40 bg-primary-soft/60" />
             <div className="mt-2 grid grid-cols-3 gap-2">{[0, 1, 2].map((k) => <div key={k} className="h-8 rounded border border-dashed border-slate-300 bg-slate-50" />)}</div>
           </div>
-          <div className="mt-3 flex gap-2">{['#4f46e5', '#0ea5e9', '#16a34a', '#ea580c'].map((c) => <span key={c} className="size-6 rounded-full ring-2 ring-white" style={{ background: c }} />)}<Palette className="ml-auto size-5 text-fg-muted" /></div>
+          <div className="mt-3 flex gap-2">{['#fe5003', '#fd8904', '#16a34a', '#0ea5e9'].map((c) => <span key={c} className="size-6 rounded-full ring-2 ring-white" style={{ background: c }} />)}<Palette className="ml-auto size-5 text-fg-muted" /></div>
         </div>
       }
     />
@@ -228,14 +228,14 @@ export function Security() {
   return (
     <Section id="security" className="bg-slate-950 text-slate-100">
       <Reveal className="mx-auto max-w-2xl text-center">
-        <ShieldCheck className="mx-auto size-11 rounded-xl bg-white/10 p-2.5 text-indigo-300" aria-hidden />
+        <ShieldCheck className="mx-auto size-11 rounded-xl bg-white/10 p-2.5 text-amber-400" aria-hidden />
         <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight sm:text-4xl">Security that auditors appreciate</h2>
         <p className="mt-4 text-slate-400 sm:text-lg">Financial records demand more than a login screen. Protection is built into every layer.</p>
       </Reveal>
       <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((it, k) => (
           <Reveal key={it.title} delay={k * 0.04} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-            <it.icon className="size-5 text-indigo-300" aria-hidden />
+            <it.icon className="size-5 text-amber-400" aria-hidden />
             <h3 className="mt-3 font-semibold text-white">{it.title}</h3>
             <p className="mt-1.5 text-sm leading-relaxed text-slate-400">{it.text}</p>
           </Reveal>
@@ -261,7 +261,7 @@ export function Reports() {
             {aging.map(([k, v]) => (
               <li key={k} className="grid grid-cols-[64px_1fr_40px] items-center gap-3 text-sm">
                 <span className="text-fg-muted">{k}</span>
-                <span className="h-2.5 overflow-hidden rounded-full bg-muted"><span className="block h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" style={{ width: `${v}%` }} /></span>
+                <span className="h-2.5 overflow-hidden rounded-full bg-muted"><span className="block h-full rounded-full bg-gradient-to-r from-[#fd8904] to-[#fe5003]" style={{ width: `${v}%` }} /></span>
                 <span className="num text-right text-fg-muted">{v}%</span>
               </li>
             ))}
@@ -279,7 +279,7 @@ export function Receipts() {
   return (
     <Section className="pt-0 sm:pt-0">
       <Reveal className="flex flex-col items-start gap-4 rounded-2xl border bg-surface p-6 shadow-sm sm:flex-row sm:items-center sm:p-8">
-        <Receipt className="size-11 shrink-0 rounded-xl bg-primary-soft p-2.5 text-primary" aria-hidden />
+        <ReceiptIndianRupee className="size-11 shrink-0 rounded-xl bg-primary-soft p-2.5 text-primary" aria-hidden />
         <div className="flex-1"><h3 className="font-semibold">Receipts and vouchers, automatically</h3><p className="mt-1 text-sm text-fg-muted">Every successful payment gets its own numbered receipt (money in) or payment voucher (money out), ready to download as a PDF.</p></div>
       </Reveal>
     </Section>
@@ -289,12 +289,12 @@ export function Receipts() {
 export function Cta({ trialDays }: { trialDays?: number }) {
   return (
     <Section>
-      <Reveal className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 px-6 py-14 text-center text-white shadow-lg sm:px-12 sm:py-16">
+      <Reveal className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#fe5003] via-[#e04600] to-[#973b0c] px-6 py-14 text-center text-white shadow-lg sm:px-12 sm:py-16">
         <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.18),transparent_45%)]" />
         <h2 className="relative text-balance text-3xl font-semibold tracking-tight sm:text-4xl">Bring every brand into one ledger</h2>
-        <p className="relative mx-auto mt-4 max-w-xl text-indigo-100">Set up your company, first brand and invoice numbering in a few minutes.{trialDays ? ` Free for ${trialDays} days.` : ''}</p>
+        <p className="relative mx-auto mt-4 max-w-xl text-orange-100">Set up your company, first brand and invoice numbering in a few minutes.{trialDays ? ` Free for ${trialDays} days.` : ''}</p>
         <div className="relative mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <Link href="/signup" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 font-medium text-indigo-700 shadow-sm transition hover:bg-indigo-50">Create your workspace <ArrowRight className="size-4" aria-hidden /></Link>
+          <Link href="/signup" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 font-medium text-[#fe5003] shadow-sm transition hover:bg-orange-50">Create your workspace <ArrowRight className="size-4" aria-hidden /></Link>
           <Link href="/contact" className="inline-flex h-12 items-center justify-center rounded-xl border border-white/30 px-6 font-medium transition hover:bg-white/10">Talk to us</Link>
         </div>
       </Reveal>

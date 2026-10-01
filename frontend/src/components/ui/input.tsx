@@ -3,7 +3,7 @@ import { cloneElement, forwardRef, isValidElement, useId, type InputHTMLAttribut
 import { cn } from '@/lib/utils';
 
 const field =
-  'w-full min-w-0 rounded-lg border bg-surface px-3 text-sm text-fg shadow-sm transition-colors placeholder:text-fg-subtle hover:border-border-strong focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/60 disabled:cursor-not-allowed disabled:opacity-60 aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger/30';
+  'w-full min-w-0 rounded-lg border border-border-input bg-surface px-3 text-sm text-fg shadow-xs transition-colors placeholder:text-fg-subtle hover:border-border-strong focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/60 disabled:cursor-not-allowed disabled:opacity-60 aria-[invalid=true]:border-danger aria-[invalid=true]:focus:ring-danger/30';
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input({ className, ...p }, ref) {
   return <input ref={ref} className={cn(field, 'h-9', className)} {...p} />;
@@ -51,7 +51,7 @@ export function Field({ label, error, hint, required, children, className }: Fie
 export function Checkbox({ label, description, className, ...p }: InputHTMLAttributes<HTMLInputElement> & { label: ReactNode; description?: ReactNode }) {
   return (
     <label className={cn('flex cursor-pointer items-start gap-2.5 text-sm', className)}>
-      <input type="checkbox" className="mt-0.5 size-4 shrink-0 cursor-pointer rounded border-border-strong accent-[var(--primary)]" {...p} />
+      <input type="checkbox" className="mt-0.5 size-4 shrink-0 cursor-pointer rounded border border-border-input hover:border-border-strong accent-[var(--primary)]" {...p} />
       <span>
         <span className="font-medium">{label}</span>
         {description && <span className="block text-xs text-fg-muted">{description}</span>}

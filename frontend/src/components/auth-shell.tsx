@@ -26,17 +26,17 @@ export function AuthShell({ title, subtitle, children, footer, wide }: {
           <div className="mt-8">{children}</div>
           {footer && <div className="mt-8 text-sm text-fg-muted">{footer}</div>}
         </div>
-        <p className="text-xs text-fg-subtle">© {new Date().getFullYear()} Navedhana Ledger · A Navedhana Product</p>
+        <p className="text-xs text-fg-subtle">© {new Date().getFullYear()} nbills · A Navedhana Product</p>
       </main>
-      <aside className={cn('relative hidden overflow-hidden bg-gradient-to-br from-indigo-950 via-indigo-800 to-violet-700 p-16 text-white', wide ? 'xl:flex xl:flex-col xl:justify-between' : 'lg:flex lg:flex-col lg:justify-between')}>
+      <aside className={cn('relative hidden overflow-hidden bg-gradient-to-br from-stone-950 via-[#3a1304] to-[#fe5003] p-16 text-white', wide ? 'xl:flex xl:flex-col xl:justify-between' : 'lg:flex lg:flex-col lg:justify-between')}>
         <div aria-hidden className="absolute -right-24 -top-24 size-96 rounded-full bg-white/10 blur-3xl" />
-        <div aria-hidden className="absolute -bottom-32 -left-16 size-96 rounded-full bg-violet-400/20 blur-3xl" />
-        <p className="relative text-sm font-medium uppercase tracking-[0.2em] text-indigo-200">A Navedhana Product</p>
+        <div aria-hidden className="absolute -bottom-32 -left-16 size-96 rounded-full bg-[#fd8904]/20 blur-3xl" />
+        <p className="relative text-sm font-medium uppercase tracking-[0.2em] text-amber-200">A Navedhana Product</p>
         <div className="relative">
           <p className="text-3xl font-semibold leading-snug">Every brand. Every invoice. One ledger.</p>
-          <ul className="mt-8 grid gap-3 text-indigo-100">
+          <ul className="mt-8 grid gap-3 text-orange-100">
             {POINTS.map((p) => (
-              <li key={p} className="flex gap-3"><CheckCircle2 className="mt-0.5 size-5 shrink-0 text-indigo-300" aria-hidden />{p}</li>
+              <li key={p} className="flex gap-3"><CheckCircle2 className="mt-0.5 size-5 shrink-0 text-amber-300" aria-hidden />{p}</li>
             ))}
           </ul>
         </div>

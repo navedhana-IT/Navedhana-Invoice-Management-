@@ -33,12 +33,12 @@ export function ImagePicker({ serviceId, value, onChange }: { serviceId: Id; val
           {assets.data?.map((a) => (
             <button key={a.id} type="button" role="radio" aria-checked={value === a.storageKey} aria-label={a.fileName} title={a.fileName}
               onClick={() => onChange(a.storageKey)}
-              className={cn('aspect-square overflow-hidden rounded-md border bg-white p-1', value === a.storageKey ? 'border-primary ring-2 ring-primary/40' : 'hover:border-border-strong')}>
+              className={cn('aspect-square overflow-hidden rounded-md border border-border-input bg-white p-1', value === a.storageKey ? 'border-primary ring-2 ring-primary/40' : 'hover:border-border-strong')}>
               <Thumb storageKey={a.storageKey} alt={a.fileName} />
             </button>
           ))}
           {can('service.update') && (
-            <label className="grid aspect-square cursor-pointer place-items-center rounded-md border border-dashed text-fg-muted hover:border-primary hover:text-primary">
+            <label className="grid aspect-square cursor-pointer place-items-center rounded-md border border-dashed border-border-input text-fg-muted hover:border-primary hover:text-primary">
               <input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => e.target.files?.[0] && upload.mutate(e.target.files[0])} />
               <span className="flex flex-col items-center gap-1 text-[11px]"><ImagePlus className="size-4" />{upload.isPending ? 'Uploading…' : 'Upload'}</span>
             </label>

@@ -63,7 +63,7 @@ export function Combobox<T extends Item>({
           aria-controls={listId}
           aria-invalid={invalid || undefined}
           className={cn(
-            'flex h-9 w-full min-w-0 cursor-pointer items-center gap-2 rounded-lg border bg-surface px-3 text-left text-sm shadow-sm transition-colors hover:border-border-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:cursor-not-allowed disabled:opacity-60 aria-[invalid=true]:border-danger',
+            'flex h-9 w-full min-w-0 cursor-pointer items-center gap-2 rounded-lg border border-border-input bg-surface px-3 text-left text-sm shadow-xs transition-colors hover:border-border-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:cursor-not-allowed disabled:opacity-60 aria-[invalid=true]:border-danger',
             className,
           )}
         >

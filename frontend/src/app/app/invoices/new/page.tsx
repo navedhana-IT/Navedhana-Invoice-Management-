@@ -1,10 +1,20 @@
 'use client';
-import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect } from 'react';
 import { InvoiceEditor } from '@/features/invoices/invoice-editor';
 
 function New() {
-  return <InvoiceEditor initialType={useSearchParams().get('type') ?? undefined} />;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const type = searchParams.get('type');
+
+  useEffect(() => {
+    if (type === 'PURCHASE') {
+      router.replace('/app/purchases/new');
+    }
+  }, [type, router]);
+
+  return <InvoiceEditor initialType={type ?? undefined} />;
 }
 
 export default function Page() {

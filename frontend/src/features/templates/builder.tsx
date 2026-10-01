@@ -7,17 +7,16 @@ import { ArrowLeft, Eye, GripVertical, Plus, Rocket, Save, Trash2 } from 'lucide
 import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { Badge, Button, Checkbox, Dialog, Field, Input, Select, Textarea } from '@/components/ui';
+import { Badge, Button, Checkbox, Dialog, Field, Select, Textarea } from '@/components/ui';
 import { Preview } from '@/features/invoices/invoice-detail';
 import { api } from '@/lib/api';
 import { useSession } from '@/lib/session';
 import { cn } from '@/lib/utils';
-import { CustomFieldsPanel } from './custom-fields';
 import { ImagePicker } from './image-picker';
 import { SECTION_LABELS, SECTION_TYPES, withLayoutDefaults, type Align, type Section, type SectionType, type Template, type TemplateConfig } from './types';
 import type { Id } from '@/lib/ids';
 
-const HALF_BY_DEFAULT: SectionType[] = ['invoice_details', 'customer_details', 'bank_details', 'signature', 'qr_code', 'logo'];
+const HALF_BY_DEFAULT: SectionType[] = ['invoice_details', 'customer_details', 'bank_details', 'payments', 'signature', 'qr_code', 'logo'];
 
 export function TemplateBuilder({ template }: { template: Template }) {
   const qc = useQueryClient();
@@ -71,6 +70,10 @@ export function TemplateBuilder({ template }: { template: Template }) {
           <p className="font-semibold">{template.name}</p>
           <p className="text-xs text-fg-muted">{template.service.name} · v{latest.version} <Badge value={dirty ? 'DRAFT' : latest.status} className="ml-1" /></p>
         </div>
+        <div className="flex items-center gap-1.5 border-r pr-3 mr-1">
+          <Button variant={selected === 'header' ? 'primary' : 'ghost'} size="sm" onClick={() => setSelected('header')}>Header</Button>
+          <Button variant={selected === 'footer' ? 'primary' : 'ghost'} size="sm" onClick={() => setSelected('footer')}>Footer</Button>
+        </div>
         <Button variant="secondary" onClick={() => setPreview(true)}><Eye className="size-4" /> Preview</Button>
         {editable && <Button variant="secondary" loading={save.isPending} disabled={!dirty} onClick={() => save.mutate()}><Save className="size-4" /> Save draft</Button>}
         {can('template.publish') && (
@@ -88,13 +91,34 @@ export function TemplateBuilder({ template }: { template: Template }) {
               </button>
             ))}
           </div>
-          <CustomFieldsPanel serviceId={template.serviceId} editable={editable} />
+
+          <div className="mt-4 border-t pt-3">
+            <p className="px-1 pb-1.5 text-xs font-semibold uppercase tracking-wider text-fg-muted">Quick Inspect</p>
+            <div className="flex flex-col gap-1">
+              <button
+                type="button"
+                onClick={() => setSelected('header')}
+                className={cn('flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors', selected === 'header' ? 'bg-primary text-primary-fg' : 'hover:bg-muted text-fg')}
+              >
+                <span>Header</span>
+                <span className="text-[10px] opacity-75">Brand &amp; Logo</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelected('footer')}
+                className={cn('flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors', selected === 'footer' ? 'bg-primary text-primary-fg' : 'hover:bg-muted text-fg')}
+              >
+                <span>Footer</span>
+                <span className="text-[10px] opacity-75">Terms &amp; Layout</span>
+              </button>
+            </div>
+          </div>
         </aside>
 
-        <div className="bg-bg p-6 lg:overflow-y-auto" onClick={() => setSelected(null)}>
+        <div className="bg-bg p-4 sm:p-6 lg:overflow-y-auto" onClick={() => setSelected(null)}>
           <div
-            className="mx-auto flex max-w-[720px] flex-col rounded-lg bg-white p-8 text-slate-800 shadow-lg"
-            style={{ fontFamily: config.theme.fontFamily, fontSize: config.theme.baseFontSize, aspectRatio: config.footer.pinToBottom ? pageRatio(config.page) : undefined }}
+            className="mx-auto flex w-full max-w-[720px] min-h-[480px] flex-col rounded-lg bg-white p-6 sm:p-8 text-slate-800 shadow-lg"
+            style={{ fontFamily: config.theme.fontFamily, fontSize: config.theme.baseFontSize }}
           >
             <Region label="Header" active={selected === 'header'} onSelect={() => setSelected('header')}
               className={cn('mb-4 pb-3', config.header.divider && 'border-b-[3px]')} style={{ borderColor: config.theme.accentColor }}>
@@ -114,8 +138,8 @@ export function TemplateBuilder({ template }: { template: Template }) {
                 </div>
               </SortableContext>
             </DndContext>
-            {config.sections.length === 0 && <p className="py-16 text-center text-sm text-slate-400">Add blocks from the left panel</p>}
-            <Region label="Footer" active={selected === 'footer'} onSelect={() => setSelected('footer')} className="mt-6 border-t pt-2">
+            {config.sections.length === 0 && <p className="py-12 text-center text-sm text-slate-400">Add blocks from the left panel</p>}
+            <Region label="Footer" active={selected === 'footer'} onSelect={() => setSelected('footer')} className="mt-auto border-t pt-3">
               <Columns pieces={[
                 [config.footer.textAlign, <p key="text" className="whitespace-pre-line text-slate-500" style={{ fontSize: config.footer.textSize }}>{[config.footer.showTerms && 'Terms & conditions', config.footer.text].filter(Boolean).join('\n') || 'Footer text'}</p>],
                 [config.footer.contactAlign, config.footer.showContact && <p key="contact" className="text-slate-500" style={{ fontSize: config.footer.contactSize }}>Address · Phone · Email · Website</p>],
@@ -159,12 +183,20 @@ function Block({ s, active, primary, editable, onSelect, onRemove }: { s: Sectio
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       onClick={(e) => { e.stopPropagation(); onSelect(); }}
-      className={cn('group relative flex min-h-14 items-center gap-2 rounded-md border border-dashed border-slate-300 bg-slate-50 px-3 py-3 text-sm', s.width === 'half' ? 'w-[calc(50%-0.375rem)]' : 'w-full', active && 'border-solid border-indigo-500 ring-2 ring-indigo-200', isDragging && 'z-10 opacity-70 shadow-lg')}
+      className={cn('group relative flex min-h-14 flex-col justify-center gap-1 rounded-md border border-dashed border-slate-300 bg-slate-50 px-3 py-3 text-sm', s.width === 'half' ? 'w-[calc(50%-0.375rem)]' : 'w-full', active && 'border-solid border-primary ring-2 ring-primary/25', isDragging && 'z-10 opacity-70 shadow-lg')}
     >
-      <button {...attributes} {...listeners} className="cursor-grab text-slate-400 active:cursor-grabbing" aria-label="Drag"><GripVertical className="size-4" /></button>
-      <span className="font-medium" style={{ color: primary }}>{SECTION_LABELS[s.type]}</span>
-      {s.type === 'custom_text' && typeof s.props.text === 'string' && <span className="truncate text-xs text-slate-500">— {s.props.text}</span>}
-      {editable && <button onClick={(e) => { e.stopPropagation(); onRemove(); }} className="ml-auto hidden text-slate-400 hover:text-red-600 group-hover:block" aria-label="Remove"><Trash2 className="size-4" /></button>}
+      <div className="flex w-full items-center gap-2">
+        <button {...attributes} {...listeners} className="cursor-grab text-slate-400 active:cursor-grabbing" aria-label="Drag"><GripVertical className="size-4" /></button>
+        <span className="font-medium" style={{ color: primary }}>{SECTION_LABELS[s.type] ?? s.type}</span>
+        {s.type === 'custom_text' && typeof s.props.text === 'string' && <span className="truncate text-xs text-slate-500">— {s.props.text}</span>}
+        {editable && <button onClick={(e) => { e.stopPropagation(); onRemove(); }} className="ml-auto hidden text-slate-400 hover:text-red-600 group-hover:block" aria-label="Remove"><Trash2 className="size-4" /></button>}
+      </div>
+      {s.type === 'payments' && (
+        <div className="mt-1 w-full rounded border border-slate-200 bg-white p-2.5 text-xs text-slate-700 shadow-xs">
+          <div className="font-semibold text-slate-900">₹30,000.00 via Bank Transfer</div>
+          <div className="mt-0.5 text-[11px] text-slate-500">LSP-PV-000003 · 29 Sept 2026 · INB/NEFT/AXODH27220773433</div>
+        </div>
+      )}
     </div>
   );
 }
@@ -173,12 +205,21 @@ function SectionInspector({ s, serviceId, onChange }: { s: Section; serviceId: I
   const prop = (k: string, v: unknown) => onChange({ props: { ...s.props, [k]: v } });
   return (
     <>
-      <p className="font-semibold">{SECTION_LABELS[s.type]}</p>
+      <p className="font-semibold">{SECTION_LABELS[s.type] ?? s.type}</p>
       <Field label="Width">
         <Select value={s.width} onChange={(e) => onChange({ width: e.target.value as Section['width'] })}><option value="full">Full width</option><option value="half">Half width</option></Select>
       </Field>
+      {s.type === 'payments' && (
+        <div className="rounded-lg border bg-surface p-3 text-xs text-fg-muted space-y-2">
+          <p className="font-medium text-fg">Payments block</p>
+          <p>Displays all recorded receipts and payment vouchers for this invoice/bill with amount, mode, receipt number, date, and transaction reference.</p>
+          <div className="rounded border bg-bg p-2.5 font-mono text-[11px] space-y-0.5">
+            <div className="font-bold text-fg">₹30,000.00 via Bank Transfer</div>
+            <div className="text-fg-muted">LSP-PV-000003 · 29 Sept 2026 · INB/NEFT/AXODH27220773433</div>
+          </div>
+        </div>
+      )}
       {s.type === 'custom_text' && <Field label="Text"><Textarea value={String(s.props.text ?? '')} onChange={(e) => prop('text', e.target.value)} /></Field>}
-      {s.type === 'custom_field' && <Field label="Field key" hint="Key of a custom field defined for this brand"><Input value={String(s.props.fieldKey ?? '')} onChange={(e) => prop('fieldKey', e.target.value)} /></Field>}
       {s.type === 'custom_image' && <ImagePicker serviceId={serviceId} value={String(s.props.imageKey ?? '')} onChange={(k) => prop('imageKey', k)} />}
       {s.type === 'qr_code' && <>
         <p className="text-xs text-fg-muted">Upload your payment QR (PhonePe, GPay, Paytm or bank). Without one, a QR is generated from the brand’s UPI ID. It’s hidden once the invoice is fully paid.</p>
@@ -204,8 +245,8 @@ function DocumentInspector({ c, update }: { c: TemplateConfig; update: Updater }
       </div>
       <p className="pt-2 text-sm font-semibold">Theme</p>
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Primary"><input type="color" value={c.theme.primaryColor} onChange={(e) => set('theme', { primaryColor: e.target.value })} className="h-9 w-full rounded-lg border" /></Field>
-        <Field label="Accent"><input type="color" value={c.theme.accentColor} onChange={(e) => set('theme', { accentColor: e.target.value })} className="h-9 w-full rounded-lg border" /></Field>
+        <Field label="Primary"><input type="color" value={c.theme.primaryColor} onChange={(e) => set('theme', { primaryColor: e.target.value })} className="h-9 w-full rounded-lg border border-border-input bg-surface cursor-pointer hover:border-border-strong" /></Field>
+        <Field label="Accent"><input type="color" value={c.theme.accentColor} onChange={(e) => set('theme', { accentColor: e.target.value })} className="h-9 w-full rounded-lg border border-border-input bg-surface cursor-pointer hover:border-border-strong" /></Field>
       </div>
       <Field label="Font">
         <Select value={c.theme.fontFamily} onChange={(e) => set('theme', { fontFamily: e.target.value })}>
@@ -291,9 +332,9 @@ function Region({ label, active, onSelect, className, style, children }: { label
       role="button" tabIndex={0} aria-label={`Edit ${label.toLowerCase()}`} style={style}
       onClick={(e) => { e.stopPropagation(); onSelect(); }}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(); } }}
-      className={cn('group relative cursor-pointer rounded-sm outline-offset-4 hover:outline hover:outline-1 hover:outline-dashed hover:outline-indigo-300', active && 'outline outline-2 outline-indigo-500', className)}
+      className={cn('group relative cursor-pointer rounded-sm outline-offset-4 hover:outline hover:outline-1 hover:outline-dashed hover:outline-primary/50', active && 'outline outline-2 outline-primary', className)}
     >
-      <span className={cn('absolute -top-5 left-0 hidden rounded bg-indigo-500 px-1.5 text-[10px] font-medium text-white group-hover:block', active && 'block')}>{label}</span>
+      <span className={cn('absolute -top-5 left-0 hidden rounded bg-primary px-1.5 text-[10px] font-medium text-white group-hover:block', active && 'block')}>{label}</span>
       {children}
     </div>
   );
@@ -315,11 +356,6 @@ function Columns({ pieces }: { pieces: [Align, React.ReactNode][] }) {
 function LogoBox({ label, size }: { label: string; size: number }) {
   return <div className="flex items-center justify-center rounded bg-slate-200 text-[10px] text-slate-500" style={{ height: size, width: size * 2 }}>{label}</div>;
 }
-
-const pageRatio = (p: TemplateConfig['page']) => {
-  const [w, h] = p.size === 'A4' ? [210, 297] : [215.9, 279.4];
-  return p.orientation === 'portrait' ? `${w} / ${h}` : `${h} / ${w}`;
-};
 
 function Check({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
   return <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="size-4" checked={checked} onChange={(e) => onChange(e.target.checked)} />{label}</label>;

@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 const variants = {
   primary: 'bg-primary text-primary-fg shadow-sm hover:bg-primary-hover',
-  secondary: 'border bg-surface text-fg shadow-sm hover:border-border-strong hover:bg-muted',
+  secondary: 'border border-border-input bg-surface text-fg shadow-xs hover:border-border-strong hover:bg-muted',
   ghost: 'text-fg hover:bg-muted',
   danger: 'bg-danger text-white shadow-sm hover:opacity-90',
   'danger-ghost': 'text-danger hover:bg-danger-soft',
