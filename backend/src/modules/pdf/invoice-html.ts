@@ -2,6 +2,7 @@ import type { TemplateConfig } from '../invoice-templates/template-config.schema
 
 export interface RenderLine { description: string; hsnSac?: string | null; quantity: string; unitPrice: string; discount: string; taxRate: string; taxAmount: string; lineTotal: string }
 export interface RenderStage { stageNumber: number; description?: string | null; amount: string; dueType: string; dueDate?: Date | null; paidAmount: string; status: string }
+export interface RenderPayment { amount: string; method: string; receiptNumber?: string | null; paidAt?: Date | null; reference?: string | null }
 
 export interface RenderData {
   config: TemplateConfig;
@@ -19,6 +20,7 @@ export interface RenderData {
     customFields: { key: string; label: string; value: string }[];
     items: RenderLine[];
     schedule: RenderStage[];
+    payments?: RenderPayment[];
   };
 }
 
@@ -49,6 +51,13 @@ export function renderInvoiceHtml(d: RenderData): string {
           .map((s) => `<tr><td>${s.stageNumber}</td><td>${esc(s.description)}</td><td>${s.dueDate ? date(s.dueDate) : s.dueType === 'NONE' ? 'On request' : '-'}</td><td class="r">${money(s.amount)}</td><td class="r">${money(s.paidAmount)}</td><td>${esc(s.status)}</td></tr>`)
           .join('')}</tbody></table>`
       : ''),
+    payments: () => {
+      const list = inv.payments ?? [];
+      if (!list.length) return '';
+      return `<h4>Payments</h4><div class="payments">${list
+        .map((p) => `<div class="payment-item"><div class="payment-main"><b>${money(p.amount)} via ${esc(p.method)}</b></div><div class="muted small">${[p.receiptNumber, date(p.paidAt), p.reference].filter(Boolean).map(esc).join(' · ')}</div></div>`)
+        .join('')}</div>`;
+    },
     bank_details: () => {
       const b = brand.service.bankDetails ?? {};
       return Object.keys(b).length ? `<h4>Bank details</h4>${kv([['Account name', b.accountName], ['Account no.', b.accountNumber], ['IFSC', b.ifsc], ['Bank', b.bankName], ['Branch', b.branch], ['UPI', b.upiId]])}` : '';
@@ -106,12 +115,16 @@ td { padding: 6px; border-bottom: 1px solid #e2e8f0; vertical-align: top; } .r {
 table.narrow { width: 45%; margin-left: auto; } .totals .grand td { font-weight: 700; font-size: 1.15em; border-top: 2px solid ${c.theme.primaryColor}; }
 .kv { display: flex; gap: 8px; } .kv span { color: #64748b; min-width: 90px; } .muted { color: #64748b; } .small { font-size: 0.85em; }
 .sign { text-align: right; margin-top: 20px; } .qr img { width: 110px; }
+.payments { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.payment-item { padding: 4px 0; border-bottom: 1px dashed #e2e8f0; }
+.payment-item:last-child { border-bottom: none; }
+.payment-main { margin-bottom: 2px; }
 footer { margin-top: 18px; border-top: 1px solid #e2e8f0; padding-top: 8px; break-inside: avoid; }
 .generated { margin: 6px 0 0; text-align: center; color: #94a3b8; font-size: 8px; }
 </style></head><body><div class="sheet">
 <header class="cols">${header}</header>
 <main>${body}</main>
-<footer><div class="cols">${footer}</div><p class="generated">Generated with Navedhana Ledger — A Navedhana Product</p></footer>
+<footer><div class="cols">${footer}</div><p class="generated">Generated with nbills — A Navedhana Product</p></footer>
 </div></body></html>`;
 }
 

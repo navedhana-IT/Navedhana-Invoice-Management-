@@ -30,7 +30,7 @@ export function configureApp(app: NestExpressApplication) {
 
   if (e.NODE_ENV !== 'production' || e.ENABLE_DOCS) {
     const config = new DocumentBuilder()
-      .setTitle('Navedhana Ledger API')
+      .setTitle('nbills API')
       .setDescription('A Navedhana Product')
       .setVersion('1.0')
       .addBearerAuth()

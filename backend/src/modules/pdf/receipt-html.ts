@@ -60,6 +60,6 @@ export function renderReceiptHtml(d: ReceiptData): string {
       ${row('Reference', d.reference)}
       ${row('Notes', d.notes)}
     </table>
-    <footer><span>${esc(d.brand.company.legalName)}</span><span>Computer-generated · Navedhana Ledger — A Navedhana Product</span></footer>
+    <footer><span>${esc(d.brand.company.legalName)}</span><span>Computer-generated · nbills — A Navedhana Product</span></footer>
   </body></html>`;
 }

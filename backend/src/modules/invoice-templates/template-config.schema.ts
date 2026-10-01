@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 export const SECTION_TYPES = [
   'logo', 'company_header', 'invoice_details', 'customer_details', 'items_table', 'tax_table', 'totals',
-  'payment_schedule', 'bank_details', 'terms', 'signature', 'custom_text', 'custom_image', 'custom_field',
+  'payment_schedule', 'payments', 'bank_details', 'terms', 'signature', 'custom_text', 'custom_image', 'custom_field',
   'qr_code', 'footer',
 ] as const;
 

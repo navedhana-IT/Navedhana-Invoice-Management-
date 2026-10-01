@@ -29,7 +29,14 @@ export class RenderDataService {
   async forInvoice(invoiceId: Id, companyId: Id): Promise<RenderData> {
     const inv = await this.prisma.invoice.findFirst({
       where: { id: invoiceId, companyId },
-      include: { items: { orderBy: { position: 'asc' } }, schedule: { orderBy: { stageNumber: 'asc' } }, customer: true, vendor: true, service: { include: { company: true } } },
+      include: {
+        items: { orderBy: { position: 'asc' } },
+        schedule: { orderBy: { stageNumber: 'asc' } },
+        customer: true,
+        vendor: true,
+        service: { include: { company: true } },
+        payments: { where: { status: 'SUCCESS' }, orderBy: { paidAt: 'asc' } },
+      },
     });
     if (!inv) throw new NotFoundException('Invoice not found');
 
@@ -60,6 +67,13 @@ export class RenderDataService {
         customFields: defs.filter((f) => values[f.key] !== undefined).map((f) => ({ key: f.key, label: f.label, value: String(values[f.key]) })),
         items: inv.items.map((i) => ({ description: i.description, hsnSac: i.hsnSac, quantity: i.quantity.toString(), unitPrice: i.unitPrice.toFixed(2), discount: i.discount.toFixed(2), taxRate: i.taxRate.toString(), taxAmount: i.taxAmount.toFixed(2), lineTotal: i.lineTotal.toFixed(2) })),
         schedule: inv.schedule.map((s) => ({ stageNumber: s.stageNumber, description: s.description, amount: s.amount.toFixed(2), dueType: s.dueType, dueDate: s.dueDate, paidAmount: s.paidAmount.toFixed(2), status: s.status })),
+        payments: inv.payments.map((p) => ({
+          amount: p.amount.toFixed(2),
+          method: p.method.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()),
+          receiptNumber: p.receiptNumber,
+          paidAt: p.paidAt,
+          reference: p.reference,
+        })),
       },
     };
   }
@@ -74,7 +88,7 @@ export class RenderDataService {
       config, brand, assets: await this.assets(companyId, brand, config),
       invoice: {
         number: numbers.INVOICE, title: 'Tax Invoice', status: 'ISSUED', issueDate: new Date(), dueDate: null, currency: 'INR', taxMode: 'INTRA_STATE',
-        terms: service.terms, subtotal: '300000.00', discountTotal: '0.00', taxTotal: '54000.00', total: '354000.00', paidAmount: '0.00', balanceAmount: '354000.00',
+        terms: service.terms, subtotal: '300000.00', discountTotal: '0.00', taxTotal: '54000.00', total: '354000.00', paidAmount: '30000.00', balanceAmount: '324000.00',
         cgst: '27000.00', sgst: '27000.00', igst: '0.00',
         party: { label: 'Bill to', name: 'Sample Customer Pvt Ltd', address: '12 MG Road\nBengaluru 560001', gstin: '29ABCDE1234F1Z5', state: 'Karnataka' },
         customFields: defs.map((f) => ({ key: f.key, label: f.label, value: f.type === 'DROPDOWN' ? f.options[0] ?? '-' : `Sample ${f.label}` })),
@@ -82,6 +96,15 @@ export class RenderDataService {
         schedule: [
           { stageNumber: 1, description: 'Advance', amount: '118000.00', dueType: 'FIXED', dueDate: new Date(Date.now() + 12 * 86_400_000), paidAmount: '0.00', status: 'PENDING' },
           { stageNumber: 2, description: 'On completion', amount: '236000.00', dueType: 'FIXED', dueDate: new Date(Date.now() + 43 * 86_400_000), paidAmount: '0.00', status: 'PENDING' },
+        ],
+        payments: [
+          {
+            amount: '30000.00',
+            method: 'Bank Transfer',
+            receiptNumber: 'LSP-PV-000003',
+            paidAt: new Date('2026-09-29T12:00:00Z'),
+            reference: 'INB/NEFT/AXODH27220773433',
+          },
         ],
       },
     };

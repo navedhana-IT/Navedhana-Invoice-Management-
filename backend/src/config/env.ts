@@ -23,7 +23,16 @@ const schema = z.object({
   ENABLE_DOCS: z.string().optional().transform((v) => v === 'true'),
   /** e.g. smtp://user:pass@smtp.example.com:587 ; unset = emails are logged instead of sent. */
   SMTP_URL: z.string().optional(),
-  MAIL_FROM: z.string().default('Navedhana Ledger <no-reply@navedhana.local>'),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().optional(),
+  SMTP_SECURE: z
+    .union([z.boolean(), z.string()])
+    .optional()
+    .transform((v) => (typeof v === 'boolean' ? v : v === 'true' || v === '1')),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  SMTP_FROM: z.string().optional(),
+  MAIL_FROM: z.string().default('nbills <no-reply@navedhana.local>'),
   /** Shared with the web app's /api/revalidate route so plan edits refresh cached marketing pages. */
   REVALIDATE_SECRET: z.string().optional(),
   WEB_INTERNAL_URL: z.string().optional(),
