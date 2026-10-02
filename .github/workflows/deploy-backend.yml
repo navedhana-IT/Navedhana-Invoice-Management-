@@ -21,14 +21,20 @@ jobs:
             echo "::error::Secret COOLIFY_BACKEND_WEBHOOK is not set in GitHub repository secrets! Please add it under Repository Settings -> Secrets and variables -> Actions."
             exit 1
           fi
+          AUTH_HEADER=""
+          if [ -n "${{ secrets.COOLIFY_API_TOKEN }}" ]; then
+            AUTH_HEADER="Authorization: Bearer ${{ secrets.COOLIFY_API_TOKEN }}"
+          fi
+
           echo "Triggering deployment in Coolify..."
-          response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X GET "${{ secrets.COOLIFY_BACKEND_WEBHOOK }}")
+          response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X GET "${{ secrets.COOLIFY_BACKEND_WEBHOOK }}" \
+            ${AUTH_HEADER:+-H "$AUTH_HEADER"})
           http_status=$(echo "$response" | grep "HTTP_STATUS" | cut -d':' -f2)
           body=$(echo "$response" | sed '/HTTP_STATUS/d')
           echo "Response: $body"
           if [ "$http_status" -ge 200 ] && [ "$http_status" -lt 300 ]; then
             echo "Coolify deployment triggered successfully (HTTP $http_status)."
           else
-            echo "::error::Coolify deployment trigger failed with HTTP $http_status"
+            echo "::error::Coolify deployment trigger failed with HTTP $http_status. If status is 401, please set COOLIFY_API_TOKEN in GitHub repository secrets."
             exit 1
           fi
