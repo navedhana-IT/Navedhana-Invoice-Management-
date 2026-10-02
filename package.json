@@ -1,5 +1,5 @@
 {
-  "name": "navedhana-ledger",
+  "name": "nbills",
   "private": true,
   "scripts": {
     "install:all": "npm --prefix backend ci && npm --prefix frontend ci",

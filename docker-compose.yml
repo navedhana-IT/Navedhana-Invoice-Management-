@@ -19,7 +19,13 @@ x-backend-env: &backend-env
   S3_FORCE_PATH_STYLE: "true"
   # Defaults to the bundled Mailpit inbox; point at a real SMTP server in production.
   SMTP_URL: ${NV_SMTP_URL:-smtp://mailpit:1025}
-  MAIL_FROM: ${NV_MAIL_FROM:-Navedhana Ledger <no-reply@navedhana.local>}
+  SMTP_HOST: ${NV_SMTP_HOST:-}
+  SMTP_PORT: ${NV_SMTP_PORT:-}
+  SMTP_SECURE: ${NV_SMTP_SECURE:-}
+  SMTP_USER: ${NV_SMTP_USER:-}
+  SMTP_PASS: ${NV_SMTP_PASS:-}
+  SMTP_FROM: ${NV_SMTP_FROM:-}
+  MAIL_FROM: ${NV_MAIL_FROM:-nbills <no-reply@navedhana.local>}
   REVALIDATE_SECRET: ${NV_REVALIDATE_SECRET:-}
   WEB_INTERNAL_URL: http://web:3000
   MASTER_ADMIN_EMAIL: ${NV_MASTER_ADMIN_EMAIL:-}

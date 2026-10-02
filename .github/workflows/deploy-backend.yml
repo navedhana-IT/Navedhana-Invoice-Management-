@@ -1,4 +1,4 @@
-name: Deploy Backend to Hostinger
+name: Deploy Backend via Coolify
 
 on:
   push:
@@ -7,45 +7,28 @@ on:
     paths:
       - 'backend/**'
       - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:
 
 jobs:
   deploy:
-    name: Deploy to VPS
+    name: Trigger Coolify Deployment
     runs-on: ubuntu-latest
 
     steps:
-      - name: Execute deployment commands via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOSTINGER_IP }}
-          username: ${{ secrets.HOSTINGER_USERNAME }}
-          password: ${{ secrets.HOSTINGER_PASSWORD }}
-          # Alternatively, use SSH key (recommended):
-          # key: ${{ secrets.HOSTINGER_SSH_KEY }}
-          port: 22
-          script: |
-            # Navigate to the project directory on your Hostinger server
-            # Replace with your actual path, e.g., /var/www/navedhana or /home/username/project
-            cd /path/to/your/project/Navedhana-Invoice-Management-/backend
-            
-            echo "Pulling latest code..."
-            git pull origin main
-            
-            echo "Installing dependencies..."
-            npm install
-            
-            echo "Generating Prisma client..."
-            npm run db:generate
-            
-            echo "Deploying database migrations..."
-            npm run db:deploy
-            
-            echo "Building the backend..."
-            npm run build
-            
-            echo "Restarting the backend service..."
-            # Assuming you are using PM2 to keep the server running
-            # If your PM2 process is named differently, change 'navedhana-backend' to your process name
-            pm2 restart navedhana-backend || pm2 start npm --name "navedhana-backend" -- run start
-            
-            echo "Deployment successful!"
+      - name: Call Coolify Deploy Webhook
+        run: |
+          if [ -z "${{ secrets.COOLIFY_BACKEND_WEBHOOK }}" ]; then
+            echo "::error::Secret COOLIFY_BACKEND_WEBHOOK is not set in GitHub repository secrets! Please add it under Repository Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+          echo "Triggering deployment in Coolify..."
+          response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X GET "${{ secrets.COOLIFY_BACKEND_WEBHOOK }}")
+          http_status=$(echo "$response" | grep "HTTP_STATUS" | cut -d':' -f2)
+          body=$(echo "$response" | sed '/HTTP_STATUS/d')
+          echo "Response: $body"
+          if [ "$http_status" -ge 200 ] && [ "$http_status" -lt 300 ]; then
+            echo "Coolify deployment triggered successfully (HTTP $http_status)."
+          else
+            echo "::error::Coolify deployment trigger failed with HTTP $http_status"
+            exit 1
+          fi

@@ -1,7 +1,7 @@
 FROM node:24-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --include=dev
 COPY . .
 # The /api rewrite target is baked in at build time, so API_URL must be a build arg.
 ARG API_URL=http://api:4000
