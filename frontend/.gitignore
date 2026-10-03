@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Next.js build output
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+
+# tests
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# secrets (examples stay tracked)
+.env
+.env.*
+!.env.example
+
+# logs and OS
+*.log
+.DS_Store
+Thumbs.db
