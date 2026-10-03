@@ -10,6 +10,7 @@
     "typecheck": "npm --prefix backend run typecheck && npm --prefix frontend run typecheck",
     "lint": "npm --prefix backend run lint && npm --prefix frontend run lint",
     "test": "npm --prefix backend test && npm --prefix frontend test",
-    "test:e2e": "npm --prefix backend run test:e2e && npm --prefix frontend run test:e2e"
+    "test:e2e": "npm --prefix backend run test:e2e && npm --prefix frontend run test:e2e",
+    "push:backend": "git subtree push --prefix backend nbills-backend main"
   }
 }
