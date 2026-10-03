@@ -30,6 +30,15 @@ import { SignupModule } from './modules/signup/signup.module';
 import { UsersModule } from './modules/users/users.module';
 import { AccessGuard } from './tenancy/access.guard';
 
+@Controller()
+class RootController {
+  @Public()
+  @Get()
+  root() {
+    return { name: 'nbills API', status: 'ok', health: '/api/v1/health', docs: '/api/docs' };
+  }
+}
+
 @Controller('health')
 class HealthController {
   constructor(private readonly prisma: PrismaService) {}
@@ -75,7 +84,7 @@ class HealthController {
     InvitationsModule,
     NotificationsModule,
   ],
-  controllers: [HealthController],
+  controllers: [RootController, HealthController],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: AccessGuard },

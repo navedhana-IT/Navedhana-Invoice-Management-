@@ -15,10 +15,9 @@ class AppValidationPipe extends ValidationPipe {
   }
 }
 
-/** Shared by main.ts and e2e tests so both run the same security pipeline. */
 export function configureApp(app: NestExpressApplication) {
   const e = env();
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api/v1', { exclude: ['/'] });
   app.set('trust proxy', 1);
   app.use(requestContext);
   app.use(helmet());

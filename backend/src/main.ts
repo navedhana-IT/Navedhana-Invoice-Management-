@@ -19,7 +19,7 @@ async function bootstrap() {
   const io = new RedisIoAdapter(app);
   io.connect();
   app.useWebSocketAdapter(io);
-  await app.listen(e.PORT);
+  await app.listen(e.PORT, '0.0.0.0');
   new ConsoleLogger('Bootstrap').log(`API on :${e.PORT}/api/v1, docs at /api/docs`);
 }
 
